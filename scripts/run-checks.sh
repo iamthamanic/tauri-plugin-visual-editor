@@ -25,5 +25,6 @@ npm run typecheck --workspaces --if-present
 
 echo "==> npm: test"
 npm run test --workspace=@tauri-plugin/visual-editor --if-present
+npm run test --workspace=@tauri-plugin/visual-editor-sdk --if-present
 
 echo "==> All checks passed (or skipped pending scaffold)"

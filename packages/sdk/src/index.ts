@@ -1,3 +1,5 @@
+import { INSPECTOR_ATTRIBUTES } from './constants.js';
+
 export type InspectorMetadata = {
   component: string;
   file: string;
@@ -5,21 +7,16 @@ export type InspectorMetadata = {
   entity?: string;
 };
 
-const ATTR = {
-  component: 'data-inspector-component',
-  file: 'data-inspector-file',
-  id: 'data-inspector-id',
-  entity: 'data-inspector-entity',
-} as const;
+export { INSPECTOR_ATTRIBUTES };
 
 export function createInspectorAttributes(metadata: InspectorMetadata): Record<string, string> {
   const attrs: Record<string, string> = {
-    [ATTR.component]: metadata.component,
-    [ATTR.file]: metadata.file,
-    [ATTR.id]: metadata.id,
+    [INSPECTOR_ATTRIBUTES.component]: metadata.component,
+    [INSPECTOR_ATTRIBUTES.file]: metadata.file,
+    [INSPECTOR_ATTRIBUTES.id]: metadata.id,
   };
   if (metadata.entity) {
-    attrs[ATTR.entity] = metadata.entity;
+    attrs[INSPECTOR_ATTRIBUTES.entity] = metadata.entity;
   }
   return attrs;
 }
@@ -32,11 +29,9 @@ export function setInspectorMetadata(element: HTMLElement, metadata: InspectorMe
 
 export function getInspectorMetadata(element: HTMLElement): Partial<InspectorMetadata> {
   return {
-    component: element.getAttribute(ATTR.component) ?? undefined,
-    file: element.getAttribute(ATTR.file) ?? undefined,
-    id: element.getAttribute(ATTR.id) ?? undefined,
-    entity: element.getAttribute(ATTR.entity) ?? undefined,
+    component: element.getAttribute(INSPECTOR_ATTRIBUTES.component) ?? undefined,
+    file: element.getAttribute(INSPECTOR_ATTRIBUTES.file) ?? undefined,
+    id: element.getAttribute(INSPECTOR_ATTRIBUTES.id) ?? undefined,
+    entity: element.getAttribute(INSPECTOR_ATTRIBUTES.entity) ?? undefined,
   };
 }
-
-export { InspectorMeta, type InspectorMetaProps } from './react.js';
