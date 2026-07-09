@@ -94,7 +94,7 @@ pub struct Capture {
 }
 
 /// Inspector session state (ephemeral; not persisted across app restarts).
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct Session {
     pub selected_elements: Vec<SelectedElement>,
     pub captures: Vec<Capture>,

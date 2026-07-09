@@ -4,17 +4,6 @@ use crate::types::{
     Capture, ElementStatus, SelectedElement, Session, WebViewRegistration, WebviewStatus,
 };
 
-impl Default for Session {
-    fn default() -> Self {
-        Self {
-            selected_elements: Vec::new(),
-            captures: Vec::new(),
-            primary_capture_id: None,
-            issue_text: None,
-        }
-    }
-}
-
 impl Session {
     pub fn new() -> Self {
         Self::default()
@@ -75,10 +64,7 @@ impl Session {
     }
 
     pub fn captures_for_copy(&self) -> Vec<&Capture> {
-        self.captures
-            .iter()
-            .filter(|c| c.include_in_copy)
-            .collect()
+        self.captures.iter().filter(|c| c.include_in_copy).collect()
     }
 
     pub fn mark_stale_after_reload(&mut self) {
@@ -99,10 +85,7 @@ impl Session {
 }
 
 /// Mark all registrations for a closed webview.
-pub fn close_webview_registration(
-    registrations: &mut [WebViewRegistration],
-    webview_id: &str,
-) {
+pub fn close_webview_registration(registrations: &mut [WebViewRegistration], webview_id: &str) {
     for reg in registrations.iter_mut().filter(|r| r.id == webview_id) {
         reg.status = WebviewStatus::Closed;
     }
@@ -111,7 +94,7 @@ pub fn close_webview_registration(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{Bounds, ElementSnapshot, Visibility};
+    use crate::types::{Bounds, CaptureType, ElementSnapshot, Visibility};
 
     fn sample_snapshot(webview_id: &str) -> ElementSnapshot {
         ElementSnapshot {
