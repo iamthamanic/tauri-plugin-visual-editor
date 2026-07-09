@@ -18,6 +18,8 @@ Visual Inspector plugin for **Tauri 2** — select UI elements, capture screensh
 
 - [PRD](docs/PRD.md)
 - [Architecture](docs/architecture.md)
+- [Integration Guide](docs/integration-guide.md)
+- [Plugin API](docs/plugin-api.md)
 - [Context Bundle Format](docs/context-bundle-format.md)
 
 ## Prerequisites
@@ -74,7 +76,7 @@ cargo add tauri-plugin-visual-editor
 npm install @tauri-plugin/visual-editor
 ```
 
-See [docs/plugin-api.md](docs/plugin-api.md) (TODO) for registration and capabilities.
+See [docs/integration-guide.md](docs/integration-guide.md) and [docs/plugin-api.md](docs/plugin-api.md) for registration and capabilities.
 
 ## Agent workflow
 

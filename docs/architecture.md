@@ -379,5 +379,6 @@ Release blockers for 0.1.0:
 
 - [PRD.md](./PRD.md)
 - [context-bundle-format.md](./context-bundle-format.md)
-- [plugin-api.md](./plugin-api.md) (TODO)
+- [plugin-api.md](./plugin-api.md)
+- [integration-guide.md](./integration-guide.md)
 - [roadmap.md](./roadmap.md) (TODO)
