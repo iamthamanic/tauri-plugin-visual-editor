@@ -160,14 +160,19 @@ pub fn export_context(
 }
 
 #[command]
-pub fn capture(
+pub async fn capture<R: Runtime>(
+    app: AppHandle<R>,
     gates: State<'_, RuntimeGates>,
     hub: State<'_, InspectorHub>,
     options: Option<CaptureOptions>,
 ) -> Result<String, String> {
     require_gates(&gates)?;
-    let mode = options.map(|o| o.mode).unwrap_or_else(|| "webview".into());
-    hub.capture(&mode)
+    let opts = options.unwrap_or_default();
+    let capture = crate::screenshot::capture_with_timeout(app.clone(), &hub, opts).await?;
+    let path = capture.path.clone();
+    hub.record_capture(capture);
+    hub.emit_state(&app);
+    Ok(path)
 }
 
 #[command]

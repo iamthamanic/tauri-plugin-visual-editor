@@ -18,6 +18,8 @@ tauri-plugin-visual-editor-core = { path = "../core", package = "tauri-plugin-vi
 arboard = { workspace = true }
 image = { workspace = true }
 open = { workspace = true }
+xcap = { workspace = true }
+tokio = { workspace = true }
 
 [build-dependencies]
 tauri-plugin.workspace = true
