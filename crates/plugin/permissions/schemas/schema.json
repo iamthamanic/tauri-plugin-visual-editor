@@ -295,6 +295,12 @@
       "type": "string",
       "oneOf": [
         {
+          "description": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-emit_state`",
+          "type": "string",
+          "const": "all",
+          "markdownDescription": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-emit_state`"
+        },
+        {
           "description": "Enables the capture command without any pre-configured scope.",
           "type": "string",
           "const": "allow-capture",
@@ -461,6 +467,24 @@
           "type": "string",
           "const": "deny-unpin-target-webview",
           "markdownDescription": "Denies the unpin_target_webview command without any pre-configured scope."
+        },
+        {
+          "description": "Screenshot capture command\n#### This permission set includes:\n\n- `allow-capture`",
+          "type": "string",
+          "const": "capture",
+          "markdownDescription": "Screenshot capture command\n#### This permission set includes:\n\n- `allow-capture`"
+        },
+        {
+          "description": "Default inspector read/export commands (open, close, getState, exportContext)\n#### This default permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`",
+          "type": "string",
+          "const": "default",
+          "markdownDescription": "Default inspector read/export commands (open, close, getState, exportContext)\n#### This default permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`"
+        },
+        {
+          "description": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`",
+          "type": "string",
+          "const": "inspect",
+          "markdownDescription": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`"
         }
       ]
     }

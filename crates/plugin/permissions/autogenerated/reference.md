@@ -1,3 +1,14 @@
+## Default Permission
+
+Default inspector read/export commands (open, close, getState, exportContext)
+
+#### This default permission set includes the following:
+
+- `allow-open`
+- `allow-close`
+- `allow-get_state`
+- `allow-export_context`
+
 ## Permission Table
 
 <table>
@@ -6,6 +17,19 @@
 <th>Description</th>
 </tr>
 
+
+<tr>
+<td>
+
+`visual-editor:all`
+
+</td>
+<td>
+
+Full visual editor plugin access
+
+</td>
+</tr>
 
 <tr>
 <td>
@@ -367,6 +391,32 @@ Enables the unpin_target_webview command without any pre-configured scope.
 <td>
 
 Denies the unpin_target_webview command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:capture`
+
+</td>
+<td>
+
+Screenshot capture command
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:inspect`
+
+</td>
+<td>
+
+Selection and session control commands
 
 </td>
 </tr>

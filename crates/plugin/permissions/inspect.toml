@@ -1,0 +1,15 @@
+"$schema" = "schemas/schema.json"
+
+[[set]]
+identifier = "inspect"
+description = "Selection and session control commands"
+permissions = [
+  "allow-enable",
+  "allow-disable",
+  "allow-toggle",
+  "allow-set_target_webview",
+  "allow-pin_target_webview",
+  "allow-unpin_target_webview",
+  "allow-revalidate",
+  "allow-clear_session",
+]

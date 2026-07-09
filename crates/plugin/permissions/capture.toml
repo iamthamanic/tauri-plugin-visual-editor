@@ -1,0 +1,6 @@
+"$schema" = "schemas/schema.json"
+
+[[set]]
+identifier = "capture"
+description = "Screenshot capture command"
+permissions = ["allow-capture"]
