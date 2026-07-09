@@ -1,0 +1,24 @@
+{
+  "name": "tauri-plugin-visual-editor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Visual Inspector plugin for Tauri 2 — Context Bundles for AI editors",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "checks": "scripts/run-checks.sh",
+    "test:e2e": "echo 'Add Playwright — see verify-ui skill'",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iamthamanic/tauri-plugin-visual-editor.git"
+  }
+}
