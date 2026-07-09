@@ -3,6 +3,8 @@
 use serde::{Deserialize, Serialize};
 use tauri_plugin_visual_editor_core::types::{InspectionTarget, Session, WebViewRegistration};
 
+use crate::settings::PersistentSettings;
+
 /// Point-in-time inspector hub state pushed to clients.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HubSnapshot {
@@ -11,6 +13,7 @@ pub struct HubSnapshot {
     pub session: Session,
     pub webviews: Vec<WebViewRegistration>,
     pub active_target: Option<InspectionTarget>,
+    pub settings: PersistentSettings,
 }
 
 #[derive(Debug, Clone, Deserialize, Default)]

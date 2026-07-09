@@ -353,6 +353,13 @@
   var OverlayRenderer = class {
     hoverEl = null;
     hoverLabel = null;
+    overlayColor = "#3b82f6";
+    selectionColor = "#22c55e";
+    configure(options) {
+      if (options.overlayColor) {
+        this.overlayColor = options.overlayColor;
+      }
+    }
     mount() {
       ensureRoot();
     }
@@ -385,7 +392,7 @@
         root.appendChild(this.hoverEl);
         root.appendChild(this.hoverLabel);
       }
-      Object.assign(this.hoverEl.style, boxStyle(snapshot.css_bounds, "#3b82f6"));
+      Object.assign(this.hoverEl.style, boxStyle(snapshot.css_bounds, this.overlayColor));
       Object.assign(this.hoverLabel.style, {
         left: `${snapshot.css_bounds.x}px`,
         top: `${Math.max(0, snapshot.css_bounds.y - 16)}px`
@@ -400,7 +407,7 @@
         box.setAttribute("data-ve-selection", item.id);
         const badge = document.createElement("div");
         badge.textContent = `#${index + 1}`;
-        Object.assign(box.style, boxStyle(item.snapshot.css_bounds, "#22c55e"));
+        Object.assign(box.style, boxStyle(item.snapshot.css_bounds, this.selectionColor));
         Object.assign(badge.style, {
           position: "fixed",
           left: `${item.snapshot.css_bounds.x}px`,
@@ -429,6 +436,9 @@
     nextId = 1;
     constructor(options) {
       this.options = options;
+    }
+    configure(options) {
+      this.overlay.configure(options);
     }
     activate() {
       if (this.active) {
@@ -538,6 +548,9 @@
     deactivate() {
       engine?.deactivate();
       engine = null;
+    },
+    configure(options) {
+      engine?.configure(options);
     }
   };
   window.__VISUAL_EDITOR_GUEST__ = runtime;

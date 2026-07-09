@@ -51,6 +51,14 @@ function labelFor(snapshot: ElementSnapshot): string {
 export class OverlayRenderer {
   private hoverEl: HTMLDivElement | null = null;
   private hoverLabel: HTMLDivElement | null = null;
+  private overlayColor = '#3b82f6';
+  private selectionColor = '#22c55e';
+
+  configure(options: { overlayColor?: string }): void {
+    if (options.overlayColor) {
+      this.overlayColor = options.overlayColor;
+    }
+  }
 
   mount(): void {
     ensureRoot();
@@ -88,7 +96,7 @@ export class OverlayRenderer {
       root.appendChild(this.hoverLabel);
     }
 
-    Object.assign(this.hoverEl!.style, boxStyle(snapshot.css_bounds, '#3b82f6'));
+    Object.assign(this.hoverEl!.style, boxStyle(snapshot.css_bounds, this.overlayColor));
     Object.assign(this.hoverLabel!.style, {
       left: `${snapshot.css_bounds.x}px`,
       top: `${Math.max(0, snapshot.css_bounds.y - 16)}px`,
@@ -105,7 +113,7 @@ export class OverlayRenderer {
       box.setAttribute('data-ve-selection', item.id);
       const badge = document.createElement('div');
       badge.textContent = `#${index + 1}`;
-      Object.assign(box.style, boxStyle(item.snapshot.css_bounds, '#22c55e'));
+      Object.assign(box.style, boxStyle(item.snapshot.css_bounds, this.selectionColor));
       Object.assign(badge.style, {
         position: 'fixed',
         left: `${item.snapshot.css_bounds.x}px`,

@@ -10,6 +10,7 @@ import type { ElementSnapshot } from './types.js';
 type GuestGlobal = {
   activate(webviewId: string): void;
   deactivate(): void;
+  configure(options: { overlayColor?: string; cropPadding?: number }): void;
   version: string;
 };
 
@@ -39,6 +40,9 @@ const runtime: GuestGlobal = {
   deactivate() {
     engine?.deactivate();
     engine = null;
+  },
+  configure(options) {
+    engine?.configure(options);
   },
 };
 

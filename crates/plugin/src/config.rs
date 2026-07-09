@@ -10,6 +10,8 @@ pub struct VisualEditorConfig {
     pub enabled: bool,
     pub allow: bool,
     pub allow_in_production: bool,
+    #[serde(default)]
+    pub project_root: Option<String>,
 }
 
 /// Load plugin config from the host app configuration (`visualEditor` or `visual-editor` key).

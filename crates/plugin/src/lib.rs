@@ -28,6 +28,8 @@ mod screenshot;
 #[cfg(feature = "visual-inspector")]
 mod security;
 #[cfg(feature = "visual-inspector")]
+mod settings;
+#[cfg(feature = "visual-inspector")]
 mod webview;
 
 #[cfg(feature = "visual-inspector")]
@@ -65,10 +67,13 @@ fn init_inspector<R: Runtime>() -> TauriPlugin<R> {
             inspector_window::protocol_response(path)
         })
         .setup(|app, _api| {
-            let hub = InspectorHub::new();
-            let gates = RuntimeGates::new(config::from_app(app), cfg!(debug_assertions));
+            let plugin_config = config::from_app(app);
+            let settings = settings::load_settings(app);
+            let hub = InspectorHub::new_with_settings(settings);
+            let gates = RuntimeGates::new(plugin_config.clone(), cfg!(debug_assertions));
             app.manage(hub);
             app.manage(gates);
+            app.manage(plugin_config);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -95,6 +100,7 @@ fn init_inspector<R: Runtime>() -> TauriPlugin<R> {
             commands::set_issue_text,
             commands::set_primary_capture,
             commands::set_capture_included,
+            commands::update_settings,
         ])
         .on_webview_ready(|webview| {
             let app = webview.app_handle();

@@ -4,7 +4,7 @@
  */
 
 import { invoke } from '@tauri-apps/api/core';
-import type { HubSnapshot } from './types.js';
+import type { HubSnapshot, PersistentSettingsPatch } from './types.js';
 
 const PLUGIN = 'plugin:visual-editor';
 
@@ -66,6 +66,10 @@ export async function setPrimaryCapture(captureId: string): Promise<void> {
 
 export async function setCaptureIncluded(captureId: string, include: boolean): Promise<void> {
   await invoke(`${PLUGIN}|set_capture_included`, { captureId, include });
+}
+
+export async function updateSettings(patch: PersistentSettingsPatch): Promise<void> {
+  await invoke(`${PLUGIN}|update_settings`, { patch });
 }
 
 export const STATE_EVENT = 'visual-editor://state-updated';

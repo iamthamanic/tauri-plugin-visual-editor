@@ -9,9 +9,10 @@ import { ActionBar } from './components/ActionBar.js';
 import { IssueField } from './components/IssueField.js';
 import { ScreenshotPreview } from './components/ScreenshotPreview.js';
 import { SelectedElements } from './components/SelectedElements.js';
+import { SettingsDialog } from './components/SettingsDialog.js';
 import { TargetSelector } from './components/TargetSelector.js';
 import { useInspectorState } from './hooks/useInspectorState.js';
-import type { ActionState } from './types.js';
+import type { ActionState, PersistentSettingsPatch } from './types.js';
 
 async function runAction(
   fn: () => Promise<unknown>,
@@ -31,10 +32,21 @@ async function runAction(
   }
 }
 
+function applyTheme(theme: 'system' | 'light' | 'dark') {
+  const root = document.documentElement;
+  if (theme === 'system') {
+    root.removeAttribute('data-theme');
+    return;
+  }
+  root.setAttribute('data-theme', theme);
+}
+
 export function App() {
   const { state, error } = useInspectorState();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
   const [issueText, setIssueText] = useState('');
   const issueTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [actionState, setActionState] = useState<ActionState>('idle');
@@ -44,6 +56,12 @@ export function App() {
       setIssueText(state.session.issue_text);
     }
   }, [state?.session.issue_text]);
+
+  useEffect(() => {
+    if (state?.settings.theme) {
+      applyTheme(state.settings.theme);
+    }
+  }, [state?.settings.theme]);
 
   useEffect(() => {
     if (issueTimer.current) {
@@ -58,6 +76,20 @@ export function App() {
       }
     };
   }, [issueText]);
+
+  async function saveSettings(patch: PersistentSettingsPatch) {
+    setSettingsError(null);
+    setBusy(true);
+    try {
+      await api.updateSettings(patch);
+      setSettingsOpen(false);
+      setMessage('Einstellungen gespeichert');
+    } catch (err) {
+      setSettingsError(err instanceof Error ? err.message : 'Speichern fehlgeschlagen');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   if (error) {
     return (
@@ -75,10 +107,23 @@ export function App() {
     );
   }
 
+  const settingsButton = (
+    <button
+      type="button"
+      className="rounded border border-[var(--inspector-border)] px-2 py-1 text-[12px]"
+      onClick={() => setSettingsOpen(true)}
+    >
+      Einstellungen
+    </button>
+  );
+
   if (!state.enabled) {
     return (
       <main className="min-h-screen bg-[var(--inspector-bg)] p-3 text-sm text-[var(--inspector-text)]">
-        <h1 className="text-sm font-semibold">Visual Inspector</h1>
+        <header className="mb-2 flex items-center justify-between gap-2">
+          <h1 className="text-sm font-semibold">Visual Inspector</h1>
+          {settingsButton}
+        </header>
         <p className="mt-2 text-[var(--inspector-muted)]">Inspector deaktiviert</p>
         <button
           type="button"
@@ -87,17 +132,28 @@ export function App() {
         >
           Aktivieren
         </button>
+        <SettingsDialog
+          open={settingsOpen}
+          settings={state.settings}
+          busy={busy}
+          error={settingsError}
+          onClose={() => setSettingsOpen(false)}
+          onSave={(patch) => void saveSettings(patch)}
+        />
       </main>
     );
   }
 
   return (
     <main className="min-h-screen bg-[var(--inspector-bg)] p-3 text-[13px] text-[var(--inspector-text)]">
-      <header className="mb-4">
-        <h1 className="text-sm font-semibold">Visual Inspector</h1>
-        <p className="text-[12px] text-[var(--inspector-muted)]">
-          {state.inspector_window_open ? 'Fenster geöffnet' : 'Fenster geschlossen'}
-        </p>
+      <header className="mb-4 flex items-start justify-between gap-2">
+        <div>
+          <h1 className="text-sm font-semibold">Visual Inspector</h1>
+          <p className="text-[12px] text-[var(--inspector-muted)]">
+            {state.inspector_window_open ? 'Fenster geöffnet' : 'Fenster geschlossen'}
+          </p>
+        </div>
+        {settingsButton}
       </header>
 
       <div className="space-y-4">
@@ -191,6 +247,15 @@ export function App() {
           }
         />
       </div>
+
+      <SettingsDialog
+        open={settingsOpen}
+        settings={state.settings}
+        busy={busy}
+        error={settingsError}
+        onClose={() => setSettingsOpen(false)}
+        onSave={(patch) => void saveSettings(patch)}
+      />
     </main>
   );
 }

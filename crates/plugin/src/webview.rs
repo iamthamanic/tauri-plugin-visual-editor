@@ -26,6 +26,33 @@ pub fn deactivate_guest<R: Runtime>(webview: &Webview<R>) -> Result<(), String> 
         .map_err(|e| format!("guest deactivate failed: {e}"))
 }
 
+fn guest_settings_script(hub: &InspectorHub) -> String {
+    let settings = hub.settings();
+    format!(
+        "window.__VISUAL_EDITOR_GUEST__?.configure({{ overlayColor: {:?}, cropPadding: {} }});",
+        settings.overlay_color, settings.crop_padding
+    )
+}
+
+pub fn apply_guest_settings_for_app<R: Runtime>(
+    app: &AppHandle<R>,
+    hub: &InspectorHub,
+) -> Result<(), String> {
+    let script = guest_settings_script(hub);
+    for reg in hub.snapshot().webviews {
+        if reg.label == INSPECTOR_WINDOW_LABEL {
+            continue;
+        }
+        let Some(window) = app.get_webview_window(&reg.label) else {
+            continue;
+        };
+        window
+            .eval(&script)
+            .map_err(|e| format!("guest settings apply failed: {e}"))?;
+    }
+    Ok(())
+}
+
 pub fn set_guest_active_for_app<R: Runtime>(
     app: &AppHandle<R>,
     hub: &InspectorHub,
@@ -40,6 +67,10 @@ pub fn set_guest_active_for_app<R: Runtime>(
         };
         if enabled {
             activate_guest(window.as_ref(), &reg.id)?;
+            let script = guest_settings_script(hub);
+            window
+                .eval(&script)
+                .map_err(|e| format!("guest settings apply failed: {e}"))?;
         } else {
             deactivate_guest(window.as_ref())?;
         }

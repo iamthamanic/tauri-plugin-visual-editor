@@ -17,4 +17,5 @@ permissions = [
   "allow-set_issue_text",
   "allow-set_primary_capture",
   "allow-set_capture_included",
+  "allow-update_settings",
 ]

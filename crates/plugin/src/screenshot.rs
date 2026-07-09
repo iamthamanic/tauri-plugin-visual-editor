@@ -127,6 +127,8 @@ fn resolve_context(hub: &InspectorHub, options: &CaptureOptions) -> CaptureConte
 
 fn capture_sync<R: Runtime>(
     app: &AppHandle<R>,
+    settings: &crate::settings::PersistentSettings,
+    config: &crate::config::VisualEditorConfig,
     ctx: CaptureContext,
     options: CaptureOptions,
 ) -> Result<Capture, String> {
@@ -144,7 +146,7 @@ fn capture_sync<R: Runtime>(
                 .css_bounds
                 .map(Into::into)
                 .ok_or_else(|| "element capture requires css_bounds from guest".to_string())?;
-            let padding = options.crop_padding_css.unwrap_or(DEFAULT_CROP_PADDING_CSS);
+            let padding = options.crop_padding_css.unwrap_or(settings.crop_padding);
             let padded = bounds_with_padding(&bounds, padding);
             let (x, y, w, h) = css_to_physical_crop(&padded, ctx.dpr);
             rgba = crop_rgba(&rgba, x, y, w, h)?;
@@ -163,7 +165,7 @@ fn capture_sync<R: Runtime>(
     };
 
     let id = capture_id();
-    let dir = paths::screenshots_dir(app)?;
+    let dir = paths::screenshots_dir(app, settings, config)?;
     let file_path: PathBuf = dir.join(format!("{id}.png"));
     save_png(&rgba, &file_path)?;
 
@@ -189,11 +191,15 @@ pub async fn capture_with_timeout<R: Runtime>(
     options: CaptureOptions,
 ) -> Result<Capture, String> {
     let ctx = resolve_context(hub, &options);
+    let settings = hub.settings();
+    let config = crate::config::from_app(&app);
     let app_clone = app.clone();
 
     timeout(
         Duration::from_secs(CAPTURE_TIMEOUT_SECS),
-        tauri::async_runtime::spawn_blocking(move || capture_sync(&app_clone, ctx, options)),
+        tauri::async_runtime::spawn_blocking(move || {
+            capture_sync(&app_clone, &settings, &config, ctx, options)
+        }),
     )
     .await
     .map_err(|_| format!("Screenshot capture timed out after {CAPTURE_TIMEOUT_SECS}s"))?

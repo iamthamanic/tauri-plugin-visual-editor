@@ -3,9 +3,11 @@
 use tauri::{command, AppHandle, Runtime, State};
 use tauri_plugin_visual_editor_core::types::ElementSnapshot;
 
+use crate::config::VisualEditorConfig;
 use crate::hub::InspectorHub;
 use crate::models::{CaptureOptions, HubSnapshot, OpenOptions};
 use crate::security::{gate_error, RuntimeGates};
+use crate::settings::PersistentSettingsPatch;
 
 fn require_gates(gates: &RuntimeGates) -> Result<(), String> {
     gates.check().map_err(gate_error)
@@ -268,9 +270,11 @@ pub fn copy_screenshot_path(
 pub fn open_screenshot_folder<R: Runtime>(
     app: AppHandle<R>,
     gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    config: State<'_, VisualEditorConfig>,
 ) -> Result<(), String> {
     require_gates(&gates)?;
-    crate::paths::open_screenshots_folder(&app)
+    crate::paths::open_screenshots_folder(&app, &hub.settings(), &config)
 }
 
 #[command]
@@ -330,6 +334,23 @@ pub fn set_capture_included<R: Runtime>(
     Ok(())
 }
 
+#[command]
+pub fn update_settings<R: Runtime>(
+    app: AppHandle<R>,
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    patch: PersistentSettingsPatch,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    hub.update_settings(&patch)?;
+    crate::settings::save_settings(&app, &hub.settings())?;
+    if hub.is_enabled() {
+        crate::webview::apply_guest_settings_for_app(&app, &hub)?;
+    }
+    emit_after(&app, &hub);
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -343,6 +364,7 @@ mod tests {
                 enabled: true,
                 allow: true,
                 allow_in_production: false,
+                project_root: None,
             },
             false,
         );
@@ -360,6 +382,7 @@ mod tests {
                     enabled: true,
                     allow: true,
                     allow_in_production: false,
+                    project_root: None,
                 },
                 false,
             )
