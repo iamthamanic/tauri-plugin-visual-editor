@@ -14,6 +14,11 @@ const COMMANDS: &[&str] = &[
     "export_context",
     "capture",
     "revalidate",
+    "copy_context_bundle",
+    "copy_screenshot_image",
+    "copy_screenshot_path",
+    "open_screenshot_folder",
+    "hard_reload",
 ];
 
 #[cfg(not(feature = "visual-inspector"))]

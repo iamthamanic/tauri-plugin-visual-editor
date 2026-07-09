@@ -17,5 +17,6 @@ permissions = [
   "allow-revalidate",
   "allow-clear_session",
   "allow-capture",
+  "allow-copy_screenshot_image",
   "allow-emit_state",
 ]

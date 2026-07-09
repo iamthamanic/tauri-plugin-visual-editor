@@ -8,6 +8,9 @@ Default inspector read/export commands (open, close, getState, exportContext)
 - `allow-close`
 - `allow-get_state`
 - `allow-export_context`
+- `allow-copy_context_bundle`
+- `allow-copy_screenshot_path`
+- `allow-open_screenshot_folder`
 
 ## Permission Table
 
@@ -105,6 +108,84 @@ Enables the close command without any pre-configured scope.
 <td>
 
 Denies the close command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:allow-copy-context-bundle`
+
+</td>
+<td>
+
+Enables the copy_context_bundle command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-copy-context-bundle`
+
+</td>
+<td>
+
+Denies the copy_context_bundle command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:allow-copy-screenshot-image`
+
+</td>
+<td>
+
+Enables the copy_screenshot_image command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-copy-screenshot-image`
+
+</td>
+<td>
+
+Denies the copy_screenshot_image command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:allow-copy-screenshot-path`
+
+</td>
+<td>
+
+Enables the copy_screenshot_path command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-copy-screenshot-path`
+
+</td>
+<td>
+
+Denies the copy_screenshot_path command without any pre-configured scope.
 
 </td>
 </tr>
@@ -242,6 +323,32 @@ Denies the get_state command without any pre-configured scope.
 <tr>
 <td>
 
+`visual-editor:allow-hard-reload`
+
+</td>
+<td>
+
+Enables the hard_reload command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-hard-reload`
+
+</td>
+<td>
+
+Denies the hard_reload command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `visual-editor:allow-open`
 
 </td>
@@ -261,6 +368,32 @@ Enables the open command without any pre-configured scope.
 <td>
 
 Denies the open command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:allow-open-screenshot-folder`
+
+</td>
+<td>
+
+Enables the open_screenshot_folder command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-open-screenshot-folder`
+
+</td>
+<td>
+
+Denies the open_screenshot_folder command without any pre-configured scope.
 
 </td>
 </tr>

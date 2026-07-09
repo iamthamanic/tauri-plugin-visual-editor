@@ -295,10 +295,10 @@
       "type": "string",
       "oneOf": [
         {
-          "description": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-emit_state`",
+          "description": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-copy_screenshot_image`\n- `allow-emit_state`",
           "type": "string",
           "const": "all",
-          "markdownDescription": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-emit_state`"
+          "markdownDescription": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-copy_screenshot_image`\n- `allow-emit_state`"
         },
         {
           "description": "Enables the capture command without any pre-configured scope.",
@@ -335,6 +335,42 @@
           "type": "string",
           "const": "deny-close",
           "markdownDescription": "Denies the close command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the copy_context_bundle command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-copy-context-bundle",
+          "markdownDescription": "Enables the copy_context_bundle command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the copy_context_bundle command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-copy-context-bundle",
+          "markdownDescription": "Denies the copy_context_bundle command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the copy_screenshot_image command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-copy-screenshot-image",
+          "markdownDescription": "Enables the copy_screenshot_image command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the copy_screenshot_image command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-copy-screenshot-image",
+          "markdownDescription": "Denies the copy_screenshot_image command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the copy_screenshot_path command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-copy-screenshot-path",
+          "markdownDescription": "Enables the copy_screenshot_path command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the copy_screenshot_path command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-copy-screenshot-path",
+          "markdownDescription": "Denies the copy_screenshot_path command without any pre-configured scope."
         },
         {
           "description": "Enables the disable command without any pre-configured scope.",
@@ -397,6 +433,18 @@
           "markdownDescription": "Denies the get_state command without any pre-configured scope."
         },
         {
+          "description": "Enables the hard_reload command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-hard-reload",
+          "markdownDescription": "Enables the hard_reload command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the hard_reload command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-hard-reload",
+          "markdownDescription": "Denies the hard_reload command without any pre-configured scope."
+        },
+        {
           "description": "Enables the open command without any pre-configured scope.",
           "type": "string",
           "const": "allow-open",
@@ -407,6 +455,18 @@
           "type": "string",
           "const": "deny-open",
           "markdownDescription": "Denies the open command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the open_screenshot_folder command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-open-screenshot-folder",
+          "markdownDescription": "Enables the open_screenshot_folder command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the open_screenshot_folder command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-open-screenshot-folder",
+          "markdownDescription": "Denies the open_screenshot_folder command without any pre-configured scope."
         },
         {
           "description": "Enables the pin_target_webview command without any pre-configured scope.",
@@ -475,16 +535,16 @@
           "markdownDescription": "Screenshot capture command\n#### This permission set includes:\n\n- `allow-capture`"
         },
         {
-          "description": "Default inspector read/export commands (open, close, getState, exportContext)\n#### This default permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`",
+          "description": "Default inspector read/export commands (open, close, getState, exportContext)\n#### This default permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-copy_context_bundle`\n- `allow-copy_screenshot_path`\n- `allow-open_screenshot_folder`",
           "type": "string",
           "const": "default",
-          "markdownDescription": "Default inspector read/export commands (open, close, getState, exportContext)\n#### This default permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`"
+          "markdownDescription": "Default inspector read/export commands (open, close, getState, exportContext)\n#### This default permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-copy_context_bundle`\n- `allow-copy_screenshot_path`\n- `allow-open_screenshot_folder`"
         },
         {
-          "description": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`",
+          "description": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-hard_reload`",
           "type": "string",
           "const": "inspect",
-          "markdownDescription": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`"
+          "markdownDescription": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-hard_reload`"
         }
       ]
     }

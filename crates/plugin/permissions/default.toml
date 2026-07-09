@@ -7,4 +7,7 @@ permissions = [
   "allow-close",
   "allow-get_state",
   "allow-export_context",
+  "allow-copy_context_bundle",
+  "allow-copy_screenshot_path",
+  "allow-open_screenshot_folder",
 ]

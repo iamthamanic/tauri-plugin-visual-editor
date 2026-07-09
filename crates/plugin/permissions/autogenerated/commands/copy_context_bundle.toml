@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-copy-context-bundle"
+description = "Enables the copy_context_bundle command without any pre-configured scope."
+commands.allow = ["copy_context_bundle"]
+
+[[permission]]
+identifier = "deny-copy-context-bundle"
+description = "Denies the copy_context_bundle command without any pre-configured scope."
+commands.deny = ["copy_context_bundle"]
