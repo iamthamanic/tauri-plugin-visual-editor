@@ -3,6 +3,7 @@
 //! Session state, selector algorithm, relationship calculation, and context
 //! bundle export live here. No Tauri dependency.
 
+pub mod selector;
 pub mod session;
 pub mod types;
 
