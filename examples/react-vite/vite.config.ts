@@ -14,6 +14,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         modal: resolve(__dirname, 'modal.html'),
+        bench: resolve(__dirname, 'bench.html'),
       },
     },
   },

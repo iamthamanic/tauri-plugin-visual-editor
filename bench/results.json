@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "host": "examples/react-vite",
+  "samples": [
+    {
+      "scenario": "feature-on-disabled",
+      "heapKb": 12,
+      "recordedAt": "2026-07-09T19:34:44.378Z"
+    }
+  ]
+}

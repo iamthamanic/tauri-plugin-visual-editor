@@ -14,7 +14,11 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "build:guest": "npm run build --workspace=@tauri-plugin/visual-editor",
     "build:sdk": "npm run build --workspace=@tauri-plugin/visual-editor-sdk",
-    "build:inspector": "npm run build --workspace=@tauri-plugin/visual-editor-inspector-app && rm -rf crates/plugin/inspector-dist && cp -R packages/inspector-app/dist crates/plugin/inspector-dist"
+    "build:inspector": "npm run build --workspace=@tauri-plugin/visual-editor-inspector-app && rm -rf crates/plugin/inspector-dist && cp -R packages/inspector-app/dist crates/plugin/inspector-dist",
+    "bench:idle": "tsx bench/idle-overhead.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3"
   },
   "engines": {
     "node": ">=20"
