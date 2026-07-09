@@ -16,4 +16,7 @@ cargo test --workspace
 echo "==> npm: typecheck"
 npm run typecheck --workspaces --if-present
 
+echo "==> npm: test"
+npm run test --workspace=@tauri-plugin/visual-editor --if-present
+
 echo "==> All checks passed (or skipped pending scaffold)"
