@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-report-selection"
+description = "Enables the report_selection command without any pre-configured scope."
+commands.allow = ["report_selection"]
+
+[[permission]]
+identifier = "deny-report-selection"
+description = "Denies the report_selection command without any pre-configured scope."
+commands.deny = ["report_selection"]

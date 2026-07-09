@@ -2,7 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --inspector-bg: #f8f9fa;
+  --inspector-border: #d0d7de;
+  --inspector-accent: #0969da;
+  --inspector-hover: #0969da33;
+  --inspector-text: #1f2328;
+  --inspector-muted: #656d76;
+  --inspector-danger: #cf222e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --inspector-bg: #1e1e1e;
+    --inspector-border: #3d3d3d;
+    --inspector-accent: #58a6ff;
+    --inspector-hover: #58a6ff33;
+    --inspector-text: #e6edf3;
+    --inspector-muted: #8b949e;
+    --inspector-danger: #f85149;
+  }
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
+  background: var(--inspector-bg);
+  color: var(--inspector-text);
 }

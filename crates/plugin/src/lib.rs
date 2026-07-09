@@ -6,6 +6,8 @@ use tauri::{
 };
 
 #[cfg(feature = "visual-inspector")]
+mod assets;
+#[cfg(feature = "visual-inspector")]
 mod clipboard;
 #[cfg(feature = "visual-inspector")]
 mod commands;
@@ -13,6 +15,8 @@ mod commands;
 mod config;
 #[cfg(feature = "visual-inspector")]
 mod hub;
+#[cfg(feature = "visual-inspector")]
+mod inspector_window;
 #[cfg(feature = "visual-inspector")]
 mod models;
 #[cfg(feature = "visual-inspector")]
@@ -56,6 +60,10 @@ fn init_inspector<R: Runtime>() -> TauriPlugin<R> {
     use tauri::Manager;
 
     Builder::new("visual-editor")
+        .register_uri_scheme_protocol("visual-editor", |_, request| {
+            let path = request.uri().path();
+            inspector_window::protocol_response(path)
+        })
         .setup(|app, _api| {
             let hub = InspectorHub::new();
             let gates = RuntimeGates::new(config::from_app(app), cfg!(debug_assertions));
@@ -84,6 +92,9 @@ fn init_inspector<R: Runtime>() -> TauriPlugin<R> {
             commands::open_screenshot_folder,
             commands::hard_reload,
             commands::report_selection,
+            commands::set_issue_text,
+            commands::set_primary_capture,
+            commands::set_capture_included,
         ])
         .on_webview_ready(|webview| {
             let app = webview.app_handle();

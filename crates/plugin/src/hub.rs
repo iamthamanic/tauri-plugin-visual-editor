@@ -248,6 +248,29 @@ impl InspectorHub {
             .map(|c| c.path.clone())
     }
 
+    pub fn set_issue_text(&self, text: Option<String>) {
+        let mut inner = self.0.lock().expect("hub mutex poisoned");
+        inner.session.set_issue_text(text);
+    }
+
+    pub fn set_primary_capture(&self, capture_id: &str) -> Result<(), String> {
+        let mut inner = self.0.lock().expect("hub mutex poisoned");
+        if inner.session.set_primary_capture(capture_id) {
+            Ok(())
+        } else {
+            Err(format!("Unknown capture: {capture_id}"))
+        }
+    }
+
+    pub fn set_capture_included(&self, capture_id: &str, include: bool) -> Result<(), String> {
+        let mut inner = self.0.lock().expect("hub mutex poisoned");
+        if inner.session.set_capture_included(capture_id, include) {
+            Ok(())
+        } else {
+            Err(format!("Unknown capture: {capture_id}"))
+        }
+    }
+
     pub fn emit_state<R: Runtime>(&self, app: &AppHandle<R>) {
         let snapshot = self.snapshot();
         let _ = app.emit(STATE_EVENT, snapshot);

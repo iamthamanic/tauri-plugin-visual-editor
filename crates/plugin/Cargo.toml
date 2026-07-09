@@ -20,6 +20,8 @@ image = { workspace = true }
 open = { workspace = true }
 xcap = { workspace = true }
 tokio = { workspace = true }
+rust-embed = { workspace = true }
+mime_guess = { workspace = true }
 
 [build-dependencies]
 tauri-plugin.workspace = true

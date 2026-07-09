@@ -427,6 +427,32 @@ Denies the pin_target_webview command without any pre-configured scope.
 <tr>
 <td>
 
+`visual-editor:allow-report-selection`
+
+</td>
+<td>
+
+Enables the report_selection command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-report-selection`
+
+</td>
+<td>
+
+Denies the report_selection command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `visual-editor:allow-revalidate`
 
 </td>
@@ -446,6 +472,84 @@ Enables the revalidate command without any pre-configured scope.
 <td>
 
 Denies the revalidate command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:allow-set-capture-included`
+
+</td>
+<td>
+
+Enables the set_capture_included command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-set-capture-included`
+
+</td>
+<td>
+
+Denies the set_capture_included command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:allow-set-issue-text`
+
+</td>
+<td>
+
+Enables the set_issue_text command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-set-issue-text`
+
+</td>
+<td>
+
+Denies the set_issue_text command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:allow-set-primary-capture`
+
+</td>
+<td>
+
+Enables the set_primary_capture command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-set-primary-capture`
+
+</td>
+<td>
+
+Denies the set_primary_capture command without any pre-configured scope.
 
 </td>
 </tr>

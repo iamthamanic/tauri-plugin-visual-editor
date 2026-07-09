@@ -2,7 +2,7 @@
 
 use tauri::{AppHandle, Manager, Runtime, Webview};
 
-use crate::hub::INSPECTOR_WINDOW_LABEL;
+use crate::hub::{InspectorHub, INSPECTOR_WINDOW_LABEL};
 
 const GUEST_RUNTIME: &str = include_str!("../guest/guest-runtime.iife.js");
 
@@ -28,16 +28,20 @@ pub fn deactivate_guest<R: Runtime>(webview: &Webview<R>) -> Result<(), String> 
 
 pub fn set_guest_active_for_app<R: Runtime>(
     app: &AppHandle<R>,
+    hub: &InspectorHub,
     enabled: bool,
 ) -> Result<(), String> {
-    for (label, webview) in app.webviews() {
-        if label == INSPECTOR_WINDOW_LABEL {
+    for reg in hub.snapshot().webviews {
+        if reg.label == INSPECTOR_WINDOW_LABEL {
             continue;
         }
+        let Some(window) = app.get_webview_window(&reg.label) else {
+            continue;
+        };
         if enabled {
-            activate_guest(&webview, label)?;
+            activate_guest(window.as_ref(), &reg.id)?;
         } else {
-            deactivate_guest(&webview)?;
+            deactivate_guest(window.as_ref())?;
         }
     }
     Ok(())
