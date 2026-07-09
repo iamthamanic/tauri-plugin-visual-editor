@@ -295,6 +295,54 @@
       "type": "string",
       "oneOf": [
         {
+          "description": "Enables the capture command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-capture",
+          "markdownDescription": "Enables the capture command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the capture command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-capture",
+          "markdownDescription": "Denies the capture command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the clear_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-clear-session",
+          "markdownDescription": "Enables the clear_session command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the clear_session command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-clear-session",
+          "markdownDescription": "Denies the clear_session command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the close command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-close",
+          "markdownDescription": "Enables the close command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the close command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-close",
+          "markdownDescription": "Denies the close command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the disable command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-disable",
+          "markdownDescription": "Enables the disable command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the disable command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-disable",
+          "markdownDescription": "Denies the disable command without any pre-configured scope."
+        },
+        {
           "description": "Enables the emit_state command without any pre-configured scope.",
           "type": "string",
           "const": "allow-emit-state",
@@ -307,6 +355,30 @@
           "markdownDescription": "Denies the emit_state command without any pre-configured scope."
         },
         {
+          "description": "Enables the enable command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-enable",
+          "markdownDescription": "Enables the enable command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the enable command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-enable",
+          "markdownDescription": "Denies the enable command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the export_context command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-export-context",
+          "markdownDescription": "Enables the export_context command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the export_context command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-export-context",
+          "markdownDescription": "Denies the export_context command without any pre-configured scope."
+        },
+        {
           "description": "Enables the get_state command without any pre-configured scope.",
           "type": "string",
           "const": "allow-get-state",
@@ -317,6 +389,78 @@
           "type": "string",
           "const": "deny-get-state",
           "markdownDescription": "Denies the get_state command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the open command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-open",
+          "markdownDescription": "Enables the open command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the open command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-open",
+          "markdownDescription": "Denies the open command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the pin_target_webview command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-pin-target-webview",
+          "markdownDescription": "Enables the pin_target_webview command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the pin_target_webview command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-pin-target-webview",
+          "markdownDescription": "Denies the pin_target_webview command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the revalidate command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-revalidate",
+          "markdownDescription": "Enables the revalidate command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the revalidate command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-revalidate",
+          "markdownDescription": "Denies the revalidate command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_target_webview command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-set-target-webview",
+          "markdownDescription": "Enables the set_target_webview command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_target_webview command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-set-target-webview",
+          "markdownDescription": "Denies the set_target_webview command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the toggle command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-toggle",
+          "markdownDescription": "Enables the toggle command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the toggle command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-toggle",
+          "markdownDescription": "Denies the toggle command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the unpin_target_webview command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-unpin-target-webview",
+          "markdownDescription": "Enables the unpin_target_webview command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the unpin_target_webview command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-unpin-target-webview",
+          "markdownDescription": "Denies the unpin_target_webview command without any pre-configured scope."
         }
       ]
     }

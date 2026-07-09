@@ -46,6 +46,18 @@ fn init_inspector<R: Runtime>() -> TauriPlugin<R> {
         .invoke_handler(tauri::generate_handler![
             commands::get_state,
             commands::emit_state,
+            commands::enable,
+            commands::disable,
+            commands::open,
+            commands::close,
+            commands::toggle,
+            commands::clear_session,
+            commands::set_target_webview,
+            commands::pin_target_webview,
+            commands::unpin_target_webview,
+            commands::export_context,
+            commands::capture,
+            commands::revalidate,
         ])
         .on_webview_ready(|webview| {
             let app = webview.app_handle();
