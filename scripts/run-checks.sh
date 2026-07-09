@@ -10,6 +10,9 @@ npm run bundle --workspace=@tauri-plugin/visual-editor --if-present
 echo "==> npm: build inspector assets"
 npm run build:inspector --if-present
 
+echo "==> npm: build SDK (types for examples)"
+npm run build --workspace=@tauri-plugin/visual-editor-sdk --if-present
+
 echo "==> Rust: fmt check"
 cargo fmt --all -- --check
 
