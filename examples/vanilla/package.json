@@ -1,0 +1,10 @@
+{
+  "name": "example-vanilla",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reference vanilla JS host (issue #16)",
+  "scripts": {
+    "dev": "echo 'Example not scaffolded yet — see issue #16'",
+    "typecheck": "echo 'skip'"
+  }
+}

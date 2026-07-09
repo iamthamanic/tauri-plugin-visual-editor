@@ -1,0 +1,13 @@
+[package]
+name = "tauri-plugin-visual-editor-core"
+description = "Core session, selector, and context bundle logic for tauri-plugin-visual-editor"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde.workspace = true
+
+[dev-dependencies]
+serde_json = "1"

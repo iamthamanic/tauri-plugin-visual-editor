@@ -1,0 +1,24 @@
+[package]
+name = "tauri-plugin-visual-editor"
+description = "Visual Inspector plugin for Tauri 2 — Context Bundles for AI editors"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+links = "tauri-plugin-visual-editor"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tauri.workspace = true
+tauri-plugin-visual-editor-core = { path = "../core", package = "tauri-plugin-visual-editor-core" }
+
+[build-dependencies]
+tauri-plugin.workspace = true
+
+[features]
+default = []
+visual-inspector = []
