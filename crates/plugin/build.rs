@@ -20,6 +20,9 @@ const COMMANDS: &[&str] = &[
     "open_screenshot_folder",
     "hard_reload",
     "report_selection",
+    "set_issue_text",
+    "set_primary_capture",
+    "set_capture_included",
 ];
 
 #[cfg(not(feature = "visual-inspector"))]

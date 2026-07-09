@@ -20,4 +20,7 @@ permissions = [
   "allow-copy_screenshot_image",
   "allow-emit_state",
   "allow-report_selection",
+  "allow-set_issue_text",
+  "allow-set_primary_capture",
+  "allow-set_capture_included",
 ]

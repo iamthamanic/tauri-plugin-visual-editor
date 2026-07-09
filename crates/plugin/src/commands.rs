@@ -43,7 +43,7 @@ pub fn enable<R: Runtime>(
 ) -> Result<(), String> {
     require_gates(&gates)?;
     hub.set_enabled(true);
-    crate::webview::set_guest_active_for_app(&app, true)?;
+    crate::webview::set_guest_active_for_app(&app, &hub, true)?;
     emit_after(&app, &hub);
     Ok(())
 }
@@ -55,7 +55,7 @@ pub fn disable<R: Runtime>(
     hub: State<'_, InspectorHub>,
 ) -> Result<(), String> {
     require_gates(&gates)?;
-    crate::webview::set_guest_active_for_app(&app, false)?;
+    crate::webview::set_guest_active_for_app(&app, &hub, false)?;
     hub.set_enabled(false);
     emit_after(&app, &hub);
     Ok(())
@@ -71,6 +71,10 @@ pub fn open<R: Runtime>(
     require_gates(&gates)?;
     let auto_enable = options.map(|o| o.auto_enable).unwrap_or(false);
     hub.open(auto_enable);
+    if auto_enable {
+        crate::webview::set_guest_active_for_app(&app, &hub, true)?;
+    }
+    crate::inspector_window::open_inspector_window(&app)?;
     emit_after(&app, &hub);
     Ok(())
 }
@@ -82,6 +86,7 @@ pub fn close<R: Runtime>(
     hub: State<'_, InspectorHub>,
 ) -> Result<(), String> {
     require_gates(&gates)?;
+    crate::inspector_window::close_inspector_window(&app)?;
     hub.close();
     emit_after(&app, &hub);
     Ok(())
@@ -94,9 +99,14 @@ pub fn toggle<R: Runtime>(
     hub: State<'_, InspectorHub>,
 ) -> Result<bool, String> {
     require_gates(&gates)?;
-    let open = hub.toggle_window();
+    let visible = crate::inspector_window::toggle_inspector_window(&app)?;
+    if visible {
+        hub.open(false);
+    } else {
+        hub.close();
+    }
     emit_after(&app, &hub);
-    Ok(open)
+    Ok(visible)
 }
 
 #[command]
@@ -278,6 +288,46 @@ pub fn hard_reload<R: Runtime>(
             .unwrap_or_else(|| "main".into())
     });
     crate::reload::hard_reload(&app, &hub, &target)
+}
+
+#[command]
+pub fn set_issue_text<R: Runtime>(
+    app: AppHandle<R>,
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    text: String,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    hub.set_issue_text(Some(text));
+    emit_after(&app, &hub);
+    Ok(())
+}
+
+#[command]
+pub fn set_primary_capture<R: Runtime>(
+    app: AppHandle<R>,
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    capture_id: String,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    hub.set_primary_capture(&capture_id)?;
+    emit_after(&app, &hub);
+    Ok(())
+}
+
+#[command]
+pub fn set_capture_included<R: Runtime>(
+    app: AppHandle<R>,
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    capture_id: String,
+    include: bool,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    hub.set_capture_included(&capture_id, include)?;
+    emit_after(&app, &hub);
+    Ok(())
 }
 
 #[cfg(test)]

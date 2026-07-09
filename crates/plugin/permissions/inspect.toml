@@ -14,4 +14,7 @@ permissions = [
   "allow-clear_session",
   "allow-hard_reload",
   "allow-report_selection",
+  "allow-set_issue_text",
+  "allow-set_primary_capture",
+  "allow-set_capture_included",
 ]

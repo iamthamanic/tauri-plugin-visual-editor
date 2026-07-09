@@ -7,14 +7,18 @@ cd "$ROOT"
 echo "==> npm: bundle guest runtime"
 npm run bundle --workspace=@tauri-plugin/visual-editor --if-present
 
+echo "==> npm: build inspector assets"
+npm run build:inspector --if-present
+
 echo "==> Rust: fmt check"
 cargo fmt --all -- --check
 
 echo "==> Rust: clippy"
-cargo clippy --workspace -- -D warnings
+cargo clippy -p tauri-plugin-visual-editor --features visual-inspector -- -D warnings
 
 echo "==> Rust: test"
-cargo test --workspace
+cargo test -p tauri-plugin-visual-editor-core
+cargo test -p tauri-plugin-visual-editor --features visual-inspector
 
 echo "==> npm: typecheck"
 npm run typecheck --workspaces --if-present

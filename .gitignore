@@ -27,5 +27,6 @@ visual-editor/screenshots/
 
 # Build outputs
 packages/*/dist/
+crates/plugin/inspector-dist/
 examples/*/dist/
 examples/*/src-tauri/target/
