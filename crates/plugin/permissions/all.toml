@@ -1,0 +1,21 @@
+"$schema" = "schemas/schema.json"
+
+[[set]]
+identifier = "all"
+description = "Full visual editor plugin access"
+permissions = [
+  "allow-open",
+  "allow-close",
+  "allow-get_state",
+  "allow-export_context",
+  "allow-enable",
+  "allow-disable",
+  "allow-toggle",
+  "allow-set_target_webview",
+  "allow-pin_target_webview",
+  "allow-unpin_target_webview",
+  "allow-revalidate",
+  "allow-clear_session",
+  "allow-capture",
+  "allow-emit_state",
+]

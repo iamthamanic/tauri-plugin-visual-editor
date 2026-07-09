@@ -1,0 +1,10 @@
+"$schema" = "schemas/schema.json"
+
+[default]
+description = "Default inspector read/export commands (open, close, getState, exportContext)"
+permissions = [
+  "allow-open",
+  "allow-close",
+  "allow-get_state",
+  "allow-export_context",
+]

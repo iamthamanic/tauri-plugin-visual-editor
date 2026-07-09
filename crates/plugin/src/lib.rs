@@ -8,14 +8,22 @@ use tauri::{
 #[cfg(feature = "visual-inspector")]
 mod commands;
 #[cfg(feature = "visual-inspector")]
+mod config;
+#[cfg(feature = "visual-inspector")]
 mod hub;
 #[cfg(feature = "visual-inspector")]
 mod models;
+#[cfg(feature = "visual-inspector")]
+mod security;
 
+#[cfg(feature = "visual-inspector")]
+pub use config::VisualEditorConfig;
 #[cfg(feature = "visual-inspector")]
 pub use hub::InspectorHub;
 #[cfg(feature = "visual-inspector")]
 pub use models::HubSnapshot;
+#[cfg(feature = "visual-inspector")]
+pub use security::{log_capability_denial, RuntimeGates};
 
 /// Initializes the plugin.
 ///
@@ -40,7 +48,9 @@ fn init_inspector<R: Runtime>() -> TauriPlugin<R> {
     Builder::new("visual-editor")
         .setup(|app, _api| {
             let hub = InspectorHub::new();
+            let gates = RuntimeGates::new(config::from_app(app), cfg!(debug_assertions));
             app.manage(hub);
+            app.manage(gates);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
