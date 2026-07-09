@@ -1,0 +1,23 @@
+[package]
+name = "example-vanilla"
+version = "0.1.0"
+description = "Visual Editor reference host — vanilla JS"
+edition = "2021"
+publish = false
+
+[lib]
+name = "example_vanilla_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-visual-editor = { path = "../../../crates/plugin", features = ["visual-inspector"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
