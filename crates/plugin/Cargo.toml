@@ -15,6 +15,9 @@ serde.workspace = true
 serde_json.workspace = true
 tauri.workspace = true
 tauri-plugin-visual-editor-core = { path = "../core", package = "tauri-plugin-visual-editor-core" }
+arboard = { workspace = true }
+image = { workspace = true }
+open = { workspace = true }
 
 [build-dependencies]
 tauri-plugin.workspace = true

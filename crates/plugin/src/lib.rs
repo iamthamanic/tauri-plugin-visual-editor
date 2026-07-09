@@ -6,6 +6,8 @@ use tauri::{
 };
 
 #[cfg(feature = "visual-inspector")]
+mod clipboard;
+#[cfg(feature = "visual-inspector")]
 mod commands;
 #[cfg(feature = "visual-inspector")]
 mod config;
@@ -13,6 +15,10 @@ mod config;
 mod hub;
 #[cfg(feature = "visual-inspector")]
 mod models;
+#[cfg(feature = "visual-inspector")]
+mod paths;
+#[cfg(feature = "visual-inspector")]
+mod reload;
 #[cfg(feature = "visual-inspector")]
 mod security;
 
@@ -68,6 +74,11 @@ fn init_inspector<R: Runtime>() -> TauriPlugin<R> {
             commands::export_context,
             commands::capture,
             commands::revalidate,
+            commands::copy_context_bundle,
+            commands::copy_screenshot_image,
+            commands::copy_screenshot_path,
+            commands::open_screenshot_folder,
+            commands::hard_reload,
         ])
         .on_webview_ready(|webview| {
             let app = webview.app_handle();

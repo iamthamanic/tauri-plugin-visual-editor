@@ -182,6 +182,82 @@ pub fn revalidate<R: Runtime>(
     Ok(updated)
 }
 
+#[command]
+pub fn copy_context_bundle(
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    let captured_at = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs().to_string())
+        .unwrap_or_else(|_| "0".into());
+    let bundle = hub.export_context(&captured_at);
+    crate::clipboard::write_text(&bundle)
+}
+
+#[command]
+pub fn copy_screenshot_image(
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    capture_id: Option<String>,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    let path = match capture_id {
+        Some(id) => hub
+            .capture_path(&id)
+            .ok_or_else(|| format!("Unknown capture: {id}"))?,
+        None => hub
+            .primary_capture_path()
+            .ok_or_else(|| "No primary screenshot in session".to_string())?,
+    };
+    crate::clipboard::write_png_file(std::path::Path::new(&path))
+}
+
+#[command]
+pub fn copy_screenshot_path(
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    capture_id: Option<String>,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    let path = match capture_id {
+        Some(id) => hub
+            .capture_path(&id)
+            .ok_or_else(|| format!("Unknown capture: {id}"))?,
+        None => hub
+            .primary_capture_path()
+            .ok_or_else(|| "No primary screenshot in session".to_string())?,
+    };
+    crate::clipboard::write_path(std::path::Path::new(&path))
+}
+
+#[command]
+pub fn open_screenshot_folder<R: Runtime>(
+    app: AppHandle<R>,
+    gates: State<'_, RuntimeGates>,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    crate::paths::open_screenshots_folder(&app)
+}
+
+#[command]
+pub fn hard_reload<R: Runtime>(
+    app: AppHandle<R>,
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    webview_id: Option<String>,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    let target = webview_id.unwrap_or_else(|| {
+        hub.snapshot()
+            .active_target
+            .map(|t| t.webview_id)
+            .unwrap_or_else(|| "main".into())
+    });
+    crate::reload::hard_reload(&app, &hub, &target)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

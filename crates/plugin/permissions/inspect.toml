@@ -12,4 +12,5 @@ permissions = [
   "allow-unpin_target_webview",
   "allow-revalidate",
   "allow-clear_session",
+  "allow-hard_reload",
 ]

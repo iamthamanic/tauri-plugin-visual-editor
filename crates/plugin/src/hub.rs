@@ -178,6 +178,34 @@ impl InspectorHub {
         updated
     }
 
+    pub fn mark_selections_stale_for_webview(&self, webview_id: &str) {
+        let mut inner = self.0.lock().expect("hub mutex poisoned");
+        for element in &mut inner.session.selected_elements {
+            if element.snapshot.webview_id == webview_id {
+                element.status =
+                    tauri_plugin_visual_editor_core::types::ElementStatus::StaleAfterReload;
+            }
+        }
+    }
+
+    pub fn primary_capture_path(&self) -> Option<String> {
+        let inner = self.0.lock().expect("hub mutex poisoned");
+        inner
+            .session
+            .primary_capture()
+            .map(|capture| capture.path.clone())
+    }
+
+    pub fn capture_path(&self, capture_id: &str) -> Option<String> {
+        let inner = self.0.lock().expect("hub mutex poisoned");
+        inner
+            .session
+            .captures
+            .iter()
+            .find(|c| c.id == capture_id)
+            .map(|c| c.path.clone())
+    }
+
     pub fn emit_state<R: Runtime>(&self, app: &AppHandle<R>) {
         let snapshot = self.snapshot();
         let _ = app.emit(STATE_EVENT, snapshot);
@@ -326,6 +354,54 @@ mod tests {
         seed_webview(&hub, "main", "main-window");
         let bundle = hub.export_context("2026-01-01T00:00:00Z");
         assert!(bundle.contains("TAURI VISUAL INSPECTOR CONTEXT"));
+    }
+
+    #[test]
+    fn mark_selections_stale_for_webview() {
+        let hub = InspectorHub::new();
+        {
+            let mut inner = hub.0.lock().unwrap();
+            inner.session.selected_elements.push(
+                tauri_plugin_visual_editor_core::types::SelectedElement {
+                    id: "el-1".into(),
+                    snapshot: tauri_plugin_visual_editor_core::types::ElementSnapshot {
+                        webview_id: "main".into(),
+                        tag: "div".into(),
+                        text: None,
+                        attributes: vec![],
+                        dom_path: "body>div".into(),
+                        visibility: tauri_plugin_visual_editor_core::types::Visibility::Visible,
+                        css_bounds: tauri_plugin_visual_editor_core::types::Bounds {
+                            x: 0.0,
+                            y: 0.0,
+                            width: 10.0,
+                            height: 10.0,
+                        },
+                        physical_bounds: tauri_plugin_visual_editor_core::types::Bounds {
+                            x: 0.0,
+                            y: 0.0,
+                            width: 10.0,
+                            height: 10.0,
+                        },
+                        visible_bounds: None,
+                        full_bounds: None,
+                        computed_layout: vec![],
+                    },
+                    selector: "div".into(),
+                    component: None,
+                    file: None,
+                    inspector_id: None,
+                    entity: None,
+                    status: tauri_plugin_visual_editor_core::types::ElementStatus::Valid,
+                    linked_capture_id: None,
+                },
+            );
+        }
+        hub.mark_selections_stale_for_webview("main");
+        assert_eq!(
+            hub.snapshot().session.selected_elements[0].status,
+            tauri_plugin_visual_editor_core::types::ElementStatus::StaleAfterReload
+        );
     }
 
     fn seed_webview(hub: &InspectorHub, id: &str, window: &str) {
