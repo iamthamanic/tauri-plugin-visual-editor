@@ -1,0 +1,10 @@
+{
+  "name": "example-react-vite",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reference Tauri 2 + React + Vite host (issue #15)",
+  "scripts": {
+    "dev": "echo 'Example not scaffolded yet — see issue #15'",
+    "typecheck": "echo 'skip'"
+  }
+}

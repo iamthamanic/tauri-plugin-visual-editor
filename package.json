@@ -11,7 +11,10 @@
     "checks": "scripts/run-checks.sh",
     "test:e2e": "echo 'Add Playwright — see verify-ui skill'",
     "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build:guest": "npm run build --workspace=@tauri-plugin/visual-editor",
+    "build:sdk": "npm run build --workspace=@tauri-plugin/visual-editor-sdk",
+    "build:inspector": "npm run build --workspace=@tauri-plugin/visual-editor-inspector-app"
   },
   "engines": {
     "node": ">=20"
