@@ -1,6 +1,7 @@
 [workspace]
 members = ["crates/core", "crates/plugin"]
 resolver = "2"
+exclude = ["examples/react-vite/src-tauri"]
 
 [workspace.package]
 version = "0.1.0"
