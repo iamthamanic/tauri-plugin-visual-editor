@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+echo "==> npm: bundle guest runtime"
+npm run bundle --workspace=@tauri-plugin/visual-editor --if-present
+
 echo "==> Rust: fmt check"
 cargo fmt --all -- --check
 

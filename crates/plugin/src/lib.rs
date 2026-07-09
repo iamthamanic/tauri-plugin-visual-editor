@@ -23,6 +23,8 @@ mod reload;
 mod screenshot;
 #[cfg(feature = "visual-inspector")]
 mod security;
+#[cfg(feature = "visual-inspector")]
+mod webview;
 
 #[cfg(feature = "visual-inspector")]
 pub use config::VisualEditorConfig;
@@ -81,6 +83,7 @@ fn init_inspector<R: Runtime>() -> TauriPlugin<R> {
             commands::copy_screenshot_path,
             commands::open_screenshot_folder,
             commands::hard_reload,
+            commands::report_selection,
         ])
         .on_webview_ready(|webview| {
             let app = webview.app_handle();

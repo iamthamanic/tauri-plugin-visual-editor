@@ -19,4 +19,5 @@ permissions = [
   "allow-capture",
   "allow-copy_screenshot_image",
   "allow-emit_state",
+  "allow-report_selection",
 ]

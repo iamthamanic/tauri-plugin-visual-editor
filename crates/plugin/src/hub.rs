@@ -165,6 +165,47 @@ impl InspectorHub {
         inner.session.add_capture(capture);
     }
 
+    pub fn report_selection(
+        &self,
+        snapshot: tauri_plugin_visual_editor_core::types::ElementSnapshot,
+        action: &str,
+    ) -> Result<(), String> {
+        use tauri_plugin_visual_editor_core::selector::{build_selector, resolve_metadata};
+        use tauri_plugin_visual_editor_core::types::{ElementStatus, SelectedElement};
+
+        let meta = resolve_metadata(&snapshot);
+        let selector = build_selector(&snapshot);
+        let mut inner = self.0.lock().expect("hub mutex poisoned");
+        let element = SelectedElement {
+            id: format!("el-{}", inner.session.selected_elements.len() + 1),
+            snapshot,
+            selector: selector.clone(),
+            component: meta.component,
+            file: meta.file,
+            inspector_id: meta.inspector_id,
+            entity: meta.entity,
+            status: ElementStatus::Valid,
+            linked_capture_id: None,
+        };
+
+        match action {
+            "toggle" => {
+                if let Some(idx) = inner
+                    .session
+                    .selected_elements
+                    .iter()
+                    .position(|e| e.selector == selector)
+                {
+                    inner.session.selected_elements.remove(idx);
+                } else {
+                    inner.session.add_element(element);
+                }
+            }
+            _ => inner.session.replace_elements(vec![element]),
+        }
+        Ok(())
+    }
+
     pub fn revalidate(&self) -> usize {
         let mut inner = self.0.lock().expect("hub mutex poisoned");
         let mut updated = 0usize;

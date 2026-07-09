@@ -1,6 +1,7 @@
 //! Tauri command handlers for the visual editor plugin.
 
 use tauri::{command, AppHandle, Runtime, State};
+use tauri_plugin_visual_editor_core::types::ElementSnapshot;
 
 use crate::hub::InspectorHub;
 use crate::models::{CaptureOptions, HubSnapshot, OpenOptions};
@@ -42,6 +43,7 @@ pub fn enable<R: Runtime>(
 ) -> Result<(), String> {
     require_gates(&gates)?;
     hub.set_enabled(true);
+    crate::webview::set_guest_active_for_app(&app, true)?;
     emit_after(&app, &hub);
     Ok(())
 }
@@ -53,6 +55,7 @@ pub fn disable<R: Runtime>(
     hub: State<'_, InspectorHub>,
 ) -> Result<(), String> {
     require_gates(&gates)?;
+    crate::webview::set_guest_active_for_app(&app, false)?;
     hub.set_enabled(false);
     emit_after(&app, &hub);
     Ok(())
@@ -185,6 +188,20 @@ pub fn revalidate<R: Runtime>(
     let updated = hub.revalidate();
     emit_after(&app, &hub);
     Ok(updated)
+}
+
+#[command]
+pub fn report_selection<R: Runtime>(
+    app: AppHandle<R>,
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    snapshot: ElementSnapshot,
+    action: String,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    hub.report_selection(snapshot, &action)?;
+    emit_after(&app, &hub);
+    Ok(())
 }
 
 #[command]

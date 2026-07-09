@@ -19,6 +19,7 @@ const COMMANDS: &[&str] = &[
     "copy_screenshot_path",
     "open_screenshot_folder",
     "hard_reload",
+    "report_selection",
 ];
 
 #[cfg(not(feature = "visual-inspector"))]

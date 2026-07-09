@@ -13,4 +13,5 @@ permissions = [
   "allow-revalidate",
   "allow-clear_session",
   "allow-hard_reload",
+  "allow-report_selection",
 ]
