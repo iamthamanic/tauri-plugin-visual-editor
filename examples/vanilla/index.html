@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visual Editor Vanilla Demo</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <h1>Visual Editor — Vanilla Demo</h1>
+      <p class="muted">L1 DOM-only: manuelle <code>data-inspector-*</code> Attribute ohne SDK.</p>
+
+      <div class="toolbar" id="inspector-toolbar">
+        <button type="button" id="btn-enable" class="primary">Inspector aktivieren</button>
+        <button type="button" id="btn-open">Inspector öffnen</button>
+        <button type="button" id="btn-toggle">Inspector umschalten</button>
+        <span id="status" class="status" aria-live="polite"></span>
+      </div>
+
+      <article
+        class="card"
+        data-inspector-component="HeroCard"
+        data-inspector-file="index.html"
+        data-inspector-id="hero-card"
+        data-inspector-entity="landing"
+      >
+        <h2>Hero-Karte</h2>
+        <p>Annotiertes Element für DOM-only Inspektion.</p>
+        <button type="button">Beispiel-Aktion</button>
+      </article>
+
+      <section
+        class="card"
+        data-inspector-component="InfoPanel"
+        data-inspector-file="index.html"
+        data-inspector-id="info-panel"
+      >
+        <h2>Info-Panel</h2>
+        <p>Zweites Element ohne <code>data-inspector-entity</code>.</p>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

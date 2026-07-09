@@ -2,9 +2,21 @@
   "name": "example-vanilla",
   "version": "0.1.0",
   "private": true,
-  "description": "Reference vanilla JS host (issue #16)",
+  "description": "Reference vanilla JS host for Visual Editor",
+  "type": "module",
   "scripts": {
-    "dev": "echo 'Example not scaffolded yet — see issue #16'",
-    "typecheck": "echo 'skip'"
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.5.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.5.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
   }
 }
