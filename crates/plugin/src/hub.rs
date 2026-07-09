@@ -160,8 +160,9 @@ impl InspectorHub {
         )
     }
 
-    pub fn capture(&self, _mode: &str) -> Result<String, String> {
-        Err("Screenshot capture is implemented in issue #8".into())
+    pub fn record_capture(&self, capture: tauri_plugin_visual_editor_core::types::Capture) {
+        let mut inner = self.0.lock().expect("hub mutex poisoned");
+        inner.session.add_capture(capture);
     }
 
     pub fn revalidate(&self) -> usize {

@@ -20,6 +20,8 @@ mod paths;
 #[cfg(feature = "visual-inspector")]
 mod reload;
 #[cfg(feature = "visual-inspector")]
+mod screenshot;
+#[cfg(feature = "visual-inspector")]
 mod security;
 
 #[cfg(feature = "visual-inspector")]

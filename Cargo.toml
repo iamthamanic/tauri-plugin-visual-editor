@@ -16,3 +16,5 @@ tauri-plugin = { version = "2", features = ["build"] }
 arboard = "3.4"
 image = { version = "0.25", default-features = false, features = ["png"] }
 open = "5"
+xcap = "0.9.6"
+tokio = { version = "1", features = ["time"] }
