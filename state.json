@@ -1,9 +1,10 @@
 {
-  "runMode": "batch",
+  "runMode": "loop",
   "activeIssue": null,
   "paused": false,
-  "queue": [5, 6, 7, 9, 11, 8, 10, 12, 13, 14, 15, 16, 17, 18, 19],
-  "completedIssues": [1, 2, 3, 4],
+  "queue": [9, 11, 8, 10, 12, 13, 14, 15, 16, 17, 18, 19],
+  "completedIssues": [1, 2, 3, 4, 5, 6, 7],
+  "mergedIssues": [1, 2, 3, 4, 5, 6, 7],
   "phase": "implement",
   "retries": {
     "implement": 0,
@@ -17,6 +18,9 @@
     "1": "https://github.com/iamthamanic/tauri-plugin-visual-editor/pull/20",
     "2": "https://github.com/iamthamanic/tauri-plugin-visual-editor/pull/23",
     "3": "https://github.com/iamthamanic/tauri-plugin-visual-editor/pull/24",
-    "4": "https://github.com/iamthamanic/tauri-plugin-visual-editor/pull/25"
+    "4": "https://github.com/iamthamanic/tauri-plugin-visual-editor/pull/25",
+    "5": "https://github.com/iamthamanic/tauri-plugin-visual-editor/pull/26",
+    "6": "https://github.com/iamthamanic/tauri-plugin-visual-editor/pull/27",
+    "7": "https://github.com/iamthamanic/tauri-plugin-visual-editor/pull/28"
   }
 }
