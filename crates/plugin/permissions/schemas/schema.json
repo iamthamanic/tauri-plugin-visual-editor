@@ -295,10 +295,10 @@
       "type": "string",
       "oneOf": [
         {
-          "description": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-copy_screenshot_image`\n- `allow-emit_state`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`\n- `allow-update_settings`",
+          "description": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get-state`\n- `allow-export-context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set-target-webview`\n- `allow-pin-target-webview`\n- `allow-unpin-target-webview`\n- `allow-revalidate`\n- `allow-clear-session`\n- `allow-capture`\n- `allow-copy-screenshot-image`\n- `allow-emit-state`\n- `allow-report-selection`\n- `allow-set-issue-text`\n- `allow-set-primary-capture`\n- `allow-set-capture-included`\n- `allow-update-settings`\n- `allow-copy-context-bundle`\n- `allow-copy-screenshot-path`\n- `allow-open-screenshot-folder`\n- `allow-hard-reload`",
           "type": "string",
           "const": "all",
-          "markdownDescription": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-copy_screenshot_image`\n- `allow-emit_state`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`\n- `allow-update_settings`"
+          "markdownDescription": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get-state`\n- `allow-export-context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set-target-webview`\n- `allow-pin-target-webview`\n- `allow-unpin-target-webview`\n- `allow-revalidate`\n- `allow-clear-session`\n- `allow-capture`\n- `allow-copy-screenshot-image`\n- `allow-emit-state`\n- `allow-report-selection`\n- `allow-set-issue-text`\n- `allow-set-primary-capture`\n- `allow-set-capture-included`\n- `allow-update-settings`\n- `allow-copy-context-bundle`\n- `allow-copy-screenshot-path`\n- `allow-open-screenshot-folder`\n- `allow-hard-reload`"
         },
         {
           "description": "Enables the capture command without any pre-configured scope.",
@@ -595,16 +595,16 @@
           "markdownDescription": "Screenshot capture command\n#### This permission set includes:\n\n- `allow-capture`"
         },
         {
-          "description": "Default inspector read/export commands (open, close, getState, exportContext)\n#### This default permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-copy_context_bundle`\n- `allow-copy_screenshot_path`\n- `allow-open_screenshot_folder`",
+          "description": "Default inspector read/export commands (open, close, getState, exportContext)\n#### This default permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get-state`\n- `allow-export-context`\n- `allow-copy-context-bundle`\n- `allow-copy-screenshot-path`\n- `allow-open-screenshot-folder`",
           "type": "string",
           "const": "default",
-          "markdownDescription": "Default inspector read/export commands (open, close, getState, exportContext)\n#### This default permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-copy_context_bundle`\n- `allow-copy_screenshot_path`\n- `allow-open_screenshot_folder`"
+          "markdownDescription": "Default inspector read/export commands (open, close, getState, exportContext)\n#### This default permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get-state`\n- `allow-export-context`\n- `allow-copy-context-bundle`\n- `allow-copy-screenshot-path`\n- `allow-open-screenshot-folder`"
         },
         {
-          "description": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-hard_reload`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`\n- `allow-update_settings`",
+          "description": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set-target-webview`\n- `allow-pin-target-webview`\n- `allow-unpin-target-webview`\n- `allow-revalidate`\n- `allow-clear-session`\n- `allow-hard-reload`\n- `allow-report-selection`\n- `allow-set-issue-text`\n- `allow-set-primary-capture`\n- `allow-set-capture-included`\n- `allow-update-settings`",
           "type": "string",
           "const": "inspect",
-          "markdownDescription": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-hard_reload`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`\n- `allow-update_settings`"
+          "markdownDescription": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set-target-webview`\n- `allow-pin-target-webview`\n- `allow-unpin-target-webview`\n- `allow-revalidate`\n- `allow-clear-session`\n- `allow-hard-reload`\n- `allow-report-selection`\n- `allow-set-issue-text`\n- `allow-set-primary-capture`\n- `allow-set-capture-included`\n- `allow-update-settings`"
         }
       ]
     }

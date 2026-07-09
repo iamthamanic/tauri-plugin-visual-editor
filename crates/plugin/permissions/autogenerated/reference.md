@@ -6,11 +6,11 @@ Default inspector read/export commands (open, close, getState, exportContext)
 
 - `allow-open`
 - `allow-close`
-- `allow-get_state`
-- `allow-export_context`
-- `allow-copy_context_bundle`
-- `allow-copy_screenshot_path`
-- `allow-open_screenshot_folder`
+- `allow-get-state`
+- `allow-export-context`
+- `allow-copy-context-bundle`
+- `allow-copy-screenshot-path`
+- `allow-open-screenshot-folder`
 
 ## Permission Table
 

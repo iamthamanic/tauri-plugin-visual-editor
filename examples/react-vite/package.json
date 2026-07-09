@@ -2,9 +2,29 @@
   "name": "example-react-vite",
   "version": "0.1.0",
   "private": true,
-  "description": "Reference Tauri 2 + React + Vite host (issue #15)",
+  "description": "Reference Tauri 2 + React + Vite host for Visual Editor",
+  "type": "module",
   "scripts": {
-    "dev": "echo 'Example not scaffolded yet — see issue #15'",
-    "typecheck": "echo 'skip'"
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.5.0",
+    "@tauri-plugin/visual-editor-sdk": "*",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.5.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.5.2",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
   }
 }
