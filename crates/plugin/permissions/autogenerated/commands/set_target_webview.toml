@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-set-target-webview"
+description = "Enables the set_target_webview command without any pre-configured scope."
+commands.allow = ["set_target_webview"]
+
+[[permission]]
+identifier = "deny-set-target-webview"
+description = "Denies the set_target_webview command without any pre-configured scope."
+commands.deny = ["set_target_webview"]

@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-unpin-target-webview"
+description = "Enables the unpin_target_webview command without any pre-configured scope."
+commands.allow = ["unpin_target_webview"]
+
+[[permission]]
+identifier = "deny-unpin-target-webview"
+description = "Denies the unpin_target_webview command without any pre-configured scope."
+commands.deny = ["unpin_target_webview"]
