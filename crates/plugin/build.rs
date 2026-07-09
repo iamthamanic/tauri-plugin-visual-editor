@@ -23,6 +23,7 @@ const COMMANDS: &[&str] = &[
     "set_issue_text",
     "set_primary_capture",
     "set_capture_included",
+    "update_settings",
 ];
 
 #[cfg(not(feature = "visual-inspector"))]

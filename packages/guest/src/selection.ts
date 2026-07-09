@@ -31,6 +31,10 @@ export class SelectionEngine {
     this.options = options;
   }
 
+  configure(options: { overlayColor?: string; cropPadding?: number }): void {
+    this.overlay.configure(options);
+  }
+
   activate(): void {
     if (this.active) {
       return;

@@ -68,6 +68,27 @@ export type InspectionTarget = {
   pinned: boolean;
 };
 
+export type ThemeMode = 'system' | 'light' | 'dark';
+export type ScreenshotDirMode = 'appData' | 'project' | 'temp' | 'absolutePath';
+
+export type PersistentSettings = {
+  theme: ThemeMode;
+  shortcut: string;
+  overlay_color: string;
+  crop_padding: number;
+  screenshot_dir: ScreenshotDirMode;
+  screenshot_absolute_path: string | null;
+};
+
+export type PersistentSettingsPatch = Partial<{
+  theme: ThemeMode;
+  shortcut: string;
+  overlay_color: string;
+  crop_padding: number;
+  screenshot_dir: ScreenshotDirMode;
+  screenshot_absolute_path: string | null;
+}>;
+
 export type HubSnapshot = {
   enabled: boolean;
   inspector_window_open: boolean;
@@ -79,6 +100,7 @@ export type HubSnapshot = {
   };
   webviews: WebViewRegistration[];
   active_target: InspectionTarget | null;
+  settings: PersistentSettings;
 };
 
 export type ActionState = 'idle' | 'loading' | 'success' | 'error';

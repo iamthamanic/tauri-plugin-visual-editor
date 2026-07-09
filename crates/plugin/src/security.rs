@@ -119,6 +119,7 @@ mod tests {
             enabled: true,
             allow: true,
             allow_in_production: false,
+            project_root: None,
         }
     }
 
@@ -185,6 +186,7 @@ mod tests {
                             enabled,
                             allow,
                             allow_in_production: prod,
+                            project_root: None,
                         };
                         let ok = gates(config, debug).check().is_ok();
                         let expected = enabled && allow && (debug || prod);

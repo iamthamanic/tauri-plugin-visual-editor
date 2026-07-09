@@ -635,6 +635,32 @@ Denies the unpin_target_webview command without any pre-configured scope.
 <tr>
 <td>
 
+`visual-editor:allow-update-settings`
+
+</td>
+<td>
+
+Enables the update_settings command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-update-settings`
+
+</td>
+<td>
+
+Denies the update_settings command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `visual-editor:capture`
 
 </td>

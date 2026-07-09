@@ -295,10 +295,10 @@
       "type": "string",
       "oneOf": [
         {
-          "description": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-copy_screenshot_image`\n- `allow-emit_state`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`",
+          "description": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-copy_screenshot_image`\n- `allow-emit_state`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`\n- `allow-update_settings`",
           "type": "string",
           "const": "all",
-          "markdownDescription": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-copy_screenshot_image`\n- `allow-emit_state`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`"
+          "markdownDescription": "Full visual editor plugin access\n#### This permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-capture`\n- `allow-copy_screenshot_image`\n- `allow-emit_state`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`\n- `allow-update_settings`"
         },
         {
           "description": "Enables the capture command without any pre-configured scope.",
@@ -577,6 +577,18 @@
           "markdownDescription": "Denies the unpin_target_webview command without any pre-configured scope."
         },
         {
+          "description": "Enables the update_settings command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-update-settings",
+          "markdownDescription": "Enables the update_settings command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the update_settings command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-update-settings",
+          "markdownDescription": "Denies the update_settings command without any pre-configured scope."
+        },
+        {
           "description": "Screenshot capture command\n#### This permission set includes:\n\n- `allow-capture`",
           "type": "string",
           "const": "capture",
@@ -589,10 +601,10 @@
           "markdownDescription": "Default inspector read/export commands (open, close, getState, exportContext)\n#### This default permission set includes:\n\n- `allow-open`\n- `allow-close`\n- `allow-get_state`\n- `allow-export_context`\n- `allow-copy_context_bundle`\n- `allow-copy_screenshot_path`\n- `allow-open_screenshot_folder`"
         },
         {
-          "description": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-hard_reload`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`",
+          "description": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-hard_reload`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`\n- `allow-update_settings`",
           "type": "string",
           "const": "inspect",
-          "markdownDescription": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-hard_reload`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`"
+          "markdownDescription": "Selection and session control commands\n#### This permission set includes:\n\n- `allow-enable`\n- `allow-disable`\n- `allow-toggle`\n- `allow-set_target_webview`\n- `allow-pin_target_webview`\n- `allow-unpin_target_webview`\n- `allow-revalidate`\n- `allow-clear_session`\n- `allow-hard_reload`\n- `allow-report_selection`\n- `allow-set_issue_text`\n- `allow-set_primary_capture`\n- `allow-set_capture_included`\n- `allow-update_settings`"
         }
       ]
     }

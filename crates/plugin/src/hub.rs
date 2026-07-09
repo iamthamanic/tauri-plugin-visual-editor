@@ -9,6 +9,7 @@ use tauri_plugin_visual_editor_core::{
 };
 
 use crate::models::HubSnapshot;
+use crate::settings::{PersistentSettings, PersistentSettingsPatch};
 
 pub const STATE_EVENT: &str = "visual-editor://state-updated";
 #[allow(dead_code)]
@@ -21,6 +22,7 @@ struct HubInner {
     session: Session,
     webviews: Vec<WebViewRegistration>,
     active_target: Option<InspectionTarget>,
+    settings: PersistentSettings,
 }
 
 /// Managed Tauri state wrapping the inspector hub.
@@ -34,7 +36,30 @@ impl Default for InspectorHub {
 
 impl InspectorHub {
     pub fn new() -> Self {
-        Self(Mutex::new(HubInner::default()))
+        Self::new_with_settings(PersistentSettings::default())
+    }
+
+    pub fn new_with_settings(settings: PersistentSettings) -> Self {
+        Self(Mutex::new(HubInner {
+            settings,
+            ..HubInner::default()
+        }))
+    }
+
+    pub fn settings(&self) -> PersistentSettings {
+        self.0.lock().expect("hub mutex poisoned").settings.clone()
+    }
+
+    pub fn update_settings(&self, patch: &PersistentSettingsPatch) -> Result<(), String> {
+        let mut inner = self.0.lock().expect("hub mutex poisoned");
+        inner.settings.merge_patch(patch);
+        inner.settings.validate()?;
+        Ok(())
+    }
+
+    pub fn set_settings(&self, settings: PersistentSettings) {
+        let mut inner = self.0.lock().expect("hub mutex poisoned");
+        inner.settings = settings;
     }
 
     pub fn snapshot(&self) -> HubSnapshot {
@@ -45,6 +70,7 @@ impl InspectorHub {
             session: inner.session.clone(),
             webviews: inner.webviews.clone(),
             active_target: inner.active_target.clone(),
+            settings: inner.settings.clone(),
         }
     }
 
@@ -300,6 +326,26 @@ fn target_labels(inner: &HubInner) -> (String, String, String) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn snapshot_includes_default_settings() {
+        let hub = InspectorHub::new();
+        let snap = hub.snapshot();
+        assert_eq!(snap.settings.crop_padding, 24);
+        assert_eq!(snap.settings.theme, crate::settings::ThemeMode::System);
+    }
+
+    #[test]
+    fn update_settings_validates_crop_padding() {
+        let hub = InspectorHub::new();
+        let err = hub
+            .update_settings(&crate::settings::PersistentSettingsPatch {
+                crop_padding: Some(7),
+                ..Default::default()
+            })
+            .unwrap_err();
+        assert!(err.contains("cropPadding"));
+    }
 
     #[test]
     fn snapshot_defaults_disabled() {
