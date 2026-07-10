@@ -9,6 +9,14 @@ readme = "../../README.md"
 keywords = ["tauri", "plugin", "inspector", "visual-editor", "cursor", "screenshot"]
 categories = ["development-tools", "gui"]
 links = "tauri-plugin-visual-editor"
+include = [
+  "src/**/*",
+  "guest/guest-runtime.iife.js",
+  "inspector-dist/**/*",
+  "permissions/**/*",
+  "build.rs",
+  "Cargo.toml",
+]
 
 [lib]
 crate-type = ["rlib"]
