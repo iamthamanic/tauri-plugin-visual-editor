@@ -1,6 +1,6 @@
 /**
  * Embedded visual editor overlay — mount once in the host Tauri app root.
- * Import `@tauri-plugin/visual-editor-sdk/overlay.css` in your host entry.
+ * Import `@iamthamanic/visual-editor-sdk/overlay.css` in your host entry.
  */
 
 import { useEffect, useRef, useState } from 'react';

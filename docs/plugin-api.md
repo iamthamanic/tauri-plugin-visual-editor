@@ -9,7 +9,7 @@ Public API for host app integrators. For step-by-step setup see [integration-gui
 ```bash
 cargo add tauri-plugin-visual-editor --features visual-inspector
 npm install @tauri-plugin/visual-editor
-npm install @tauri-plugin/visual-editor-sdk   # optional metadata helpers
+npm install @iamthamanic/visual-editor-sdk   # optional metadata helpers
 ```
 
 ---
@@ -287,10 +287,10 @@ import {
   createInspectorAttributes,
   setInspectorMetadata,
   getInspectorMetadata,
-} from '@tauri-plugin/visual-editor-sdk';
+} from '@iamthamanic/visual-editor-sdk';
 
 // React peer import
-import { InspectorMeta } from '@tauri-plugin/visual-editor-sdk/react';
+import { InspectorMeta } from '@iamthamanic/visual-editor-sdk/react';
 ```
 
 Canonical attributes:
@@ -359,12 +359,12 @@ See [packages/sdk/README.md](../packages/sdk/README.md).
 - Check screenshot directory permissions for `appData` / `absolutePath` modes
 - For `project` mode, set `projectRoot` in plugin config
 
-### TypeScript: cannot find `@tauri-plugin/visual-editor-sdk/react`
+### TypeScript: cannot find `@iamthamanic/visual-editor-sdk/react`
 
 **Fix:** Build the SDK before workspace typecheck:
 
 ```bash
-npm run build --workspace=@tauri-plugin/visual-editor-sdk
+npm run build --workspace=@iamthamanic/visual-editor-sdk
 ```
 
 `npm run checks` does this automatically.

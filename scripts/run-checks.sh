@@ -11,7 +11,7 @@ echo "==> npm: build inspector assets"
 npm run build:inspector --if-present
 
 echo "==> npm: build SDK (types for examples)"
-npm run build --workspace=@tauri-plugin/visual-editor-sdk --if-present
+npm run build --workspace=@iamthamanic/visual-editor-sdk --if-present
 
 echo "==> Rust: fmt check"
 cargo fmt --all -- --check
@@ -28,6 +28,6 @@ npm run typecheck --workspaces --if-present
 
 echo "==> npm: test"
 npm run test --workspace=@tauri-plugin/visual-editor --if-present
-npm run test --workspace=@tauri-plugin/visual-editor-sdk --if-present
+npm run test --workspace=@iamthamanic/visual-editor-sdk --if-present
 
 echo "==> All checks passed (or skipped pending scaffold)"

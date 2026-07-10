@@ -72,5 +72,5 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm run build --workspace=@tauri-plugin/visual-editor-sdk
-          npm publish --workspace=@tauri-plugin/visual-editor-sdk --access public
+          npm run build --workspace=@iamthamanic/visual-editor-sdk
+          npm publish --workspace=@iamthamanic/visual-editor-sdk --access public

@@ -25,7 +25,7 @@ After a new plugin release: `cargo update -p tauri-plugin-visual-editor` in the 
 ### Optional metadata SDK
 
 ```bash
-npm install @tauri-plugin/visual-editor-sdk
+npm install @iamthamanic/visual-editor-sdk
 ```
 
 ### Monorepo / local development
@@ -134,13 +134,13 @@ The guest package (`@tauri-plugin/visual-editor`) is bundled into the Rust crate
 Without metadata the inspector still works (DOM-only / L1). For **component names, file paths, and stable IDs** in Context Bundles, use the SDK.
 
 ```bash
-npm install @tauri-plugin/visual-editor-sdk
+npm install @iamthamanic/visual-editor-sdk
 ```
 
 Annotate components so the selector algorithm can produce stable `data-inspector-*` attributes:
 
 ```tsx
-import { InspectorMeta } from '@tauri-plugin/visual-editor-sdk/react';
+import { InspectorMeta } from '@iamthamanic/visual-editor-sdk/react';
 
 export function SaveButton() {
   return (
@@ -166,7 +166,7 @@ Vanilla HTML:
 Build the SDK before typechecking examples in CI:
 
 ```bash
-npm run build --workspace=@tauri-plugin/visual-editor-sdk
+npm run build --workspace=@iamthamanic/visual-editor-sdk
 ```
 
 **Tip:** wrap every user-facing control you want to inspect — buttons, inputs, cards, modals.

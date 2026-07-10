@@ -19,4 +19,4 @@ updates:
     groups:
       visual-editor-sdk:
         patterns:
-          - "@tauri-plugin/visual-editor-sdk"
+          - "@iamthamanic/visual-editor-sdk"

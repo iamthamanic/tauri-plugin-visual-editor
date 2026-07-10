@@ -2,7 +2,7 @@
 
 [![Checks](https://github.com/iamthamanic/tauri-plugin-visual-editor/actions/workflows/checks.yml/badge.svg)](https://github.com/iamthamanic/tauri-plugin-visual-editor/actions/workflows/checks.yml)
 [![crates.io](https://img.shields.io/crates/v/tauri-plugin-visual-editor.svg)](https://crates.io/crates/tauri-plugin-visual-editor)
-[![npm](https://img.shields.io/npm/v/@tauri-plugin/visual-editor-sdk.svg)](https://www.npmjs.com/package/@tauri-plugin/visual-editor-sdk)
+[![npm](https://img.shields.io/npm/v/@iamthamanic/visual-editor-sdk.svg)](https://www.npmjs.com/package/@iamthamanic/visual-editor-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Visual Inspector plugin for **Tauri 2** — select UI elements, capture screenshots, and copy **Context Bundles** into AI editors like Cursor.
@@ -62,11 +62,11 @@ No frontend import required — the overlay auto-injects into your webview.
 ### 4. Best bundle quality (recommended)
 
 ```bash
-npm install @tauri-plugin/visual-editor-sdk
+npm install @iamthamanic/visual-editor-sdk
 ```
 
 ```tsx
-import { InspectorMeta } from '@tauri-plugin/visual-editor-sdk/react';
+import { InspectorMeta } from '@iamthamanic/visual-editor-sdk/react';
 
 <InspectorMeta component="SaveButton" file="src/SaveButton.tsx" id="save">
   <button>Save</button>
@@ -80,7 +80,7 @@ import { InspectorMeta } from '@tauri-plugin/visual-editor-sdk/react';
 | Package | Registry | Purpose |
 |---------|----------|---------|
 | `tauri-plugin-visual-editor` | [crates.io](https://crates.io/crates/tauri-plugin-visual-editor) | Tauri plugin (includes guest overlay) |
-| `@tauri-plugin/visual-editor-sdk` | [npm](https://www.npmjs.com/package/@tauri-plugin/visual-editor-sdk) | `InspectorMeta` + metadata helpers |
+| `@iamthamanic/visual-editor-sdk` | [npm](https://www.npmjs.com/package/@iamthamanic/visual-editor-sdk) | `InspectorMeta` + metadata helpers |
 
 Hosts do **not** need `npm install @tauri-plugin/visual-editor` — guest JS ships inside the Rust crate.
 
@@ -88,7 +88,7 @@ Hosts do **not** need `npm install @tauri-plugin/visual-editor` — guest JS shi
 
 ```bash
 cargo update -p tauri-plugin-visual-editor
-npm update @tauri-plugin/visual-editor-sdk
+npm update @iamthamanic/visual-editor-sdk
 ```
 
 See [docs/consuming-apps.md](docs/consuming-apps.md).

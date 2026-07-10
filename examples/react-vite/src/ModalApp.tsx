@@ -3,7 +3,7 @@
  * Location: examples/react-vite/src/ModalApp.tsx
  */
 
-import { InspectorMeta } from '@tauri-plugin/visual-editor-sdk/react';
+import { InspectorMeta } from '@iamthamanic/visual-editor-sdk/react';
 import { DemoCard } from './components/DemoCard';
 
 export function ModalApp() {

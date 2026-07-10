@@ -8,7 +8,7 @@ Scriptony and other hosts consume **published** artifacts. QA for releases is do
 |----------|----------|-----------|
 | `tauri-plugin-visual-editor-core` | crates.io | Plugin crate (transitive) |
 | `tauri-plugin-visual-editor` | crates.io | Host `Cargo.toml` (includes guest JS + inspector assets) |
-| `@tauri-plugin/visual-editor-sdk` | npm | Optional `InspectorMeta` in host frontend |
+| `@iamthamanic/visual-editor-sdk` | npm | Optional `InspectorMeta` in host frontend |
 
 Not published to npm for hosts: `@tauri-plugin/visual-editor` (guest) — embedded in the Rust crate.
 
@@ -51,14 +51,14 @@ Tag push `v*` triggers [.github/workflows/release.yml](../.github/workflows/rele
 1. Build guest bundle + inspector dist
 2. `cargo publish -p tauri-plugin-visual-editor-core`
 3. `cargo publish -p tauri-plugin-visual-editor --features visual-inspector`
-4. `npm publish` for `@tauri-plugin/visual-editor-sdk`
+4. `npm publish` for `@iamthamanic/visual-editor-sdk`
 
 ### 5. Update Scriptony
 
 ```bash
 cd /path/to/scriptony
 cargo update -p tauri-plugin-visual-editor
-npm update @tauri-plugin/visual-editor-sdk   # if used
+npm update @iamthamanic/visual-editor-sdk   # if used
 ```
 
 Or merge the Dependabot PR.
@@ -71,8 +71,8 @@ npm run build:inspector
 cargo publish -p tauri-plugin-visual-editor-core
 # wait ~30s for crates.io index
 cargo publish -p tauri-plugin-visual-editor --features visual-inspector
-npm run build --workspace=@tauri-plugin/visual-editor-sdk
-npm publish --workspace=@tauri-plugin/visual-editor-sdk
+npm run build --workspace=@iamthamanic/visual-editor-sdk
+npm publish --workspace=@iamthamanic/visual-editor-sdk
 ```
 
 ## First release (0.1.0)

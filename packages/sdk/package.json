@@ -1,5 +1,5 @@
 {
-  "name": "@tauri-plugin/visual-editor-sdk",
+  "name": "@iamthamanic/visual-editor-sdk",
   "version": "0.1.0",
   "description": "Framework-neutral metadata helpers for Visual Editor",
   "type": "module",
@@ -20,7 +20,10 @@
     },
     "./overlay.css": "./dist/overlay/overlay.css"
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json && mkdir -p dist/overlay && cp src/overlay/overlay.css dist/overlay/overlay.css",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -29,7 +32,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/iamthamanic/tauri-plugin-visual-editor.git",
+    "url": "git+https://github.com/iamthamanic/tauri-plugin-visual-editor.git",
     "directory": "packages/sdk"
   },
   "publishConfig": {
@@ -40,8 +43,12 @@
     "react": ">=18"
   },
   "peerDependenciesMeta": {
-    "@tauri-apps/api": { "optional": true },
-    "react": { "optional": true }
+    "@tauri-apps/api": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/react": "^19.1.8",

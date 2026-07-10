@@ -1,11 +1,11 @@
-# @tauri-plugin/visual-editor-sdk
+# @iamthamanic/visual-editor-sdk
 
 Framework-neutral helpers for canonical `data-inspector-*` metadata attributes used by the Visual Editor plugin.
 
 ## Install
 
 ```bash
-npm install @tauri-plugin/visual-editor-sdk
+npm install @iamthamanic/visual-editor-sdk
 ```
 
 React is optional — only required for `InspectorMeta`.
@@ -18,7 +18,7 @@ import {
   getInspectorMetadata,
   INSPECTOR_ATTRIBUTES,
   setInspectorMetadata,
-} from '@tauri-plugin/visual-editor-sdk';
+} from '@iamthamanic/visual-editor-sdk';
 
 const attrs = createInspectorAttributes({
   component: 'PrimaryButton',
@@ -45,7 +45,7 @@ console.log(INSPECTOR_ATTRIBUTES.id);
 ## React helper (optional)
 
 ```tsx
-import { InspectorMeta } from '@tauri-plugin/visual-editor-sdk/react';
+import { InspectorMeta } from '@iamthamanic/visual-editor-sdk/react';
 
 export function SaveButton() {
   return (

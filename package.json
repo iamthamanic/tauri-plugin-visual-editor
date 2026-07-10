@@ -13,7 +13,7 @@
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "build:guest": "npm run build --workspace=@tauri-plugin/visual-editor",
-    "build:sdk": "npm run build --workspace=@tauri-plugin/visual-editor-sdk",
+    "build:sdk": "npm run build --workspace=@iamthamanic/visual-editor-sdk",
     "build:inspector": "npm run build --workspace=@tauri-plugin/visual-editor-inspector-app && rm -rf crates/plugin/inspector-dist && cp -R packages/inspector-app/dist crates/plugin/inspector-dist",
     "bench:idle": "tsx bench/idle-overhead.ts"
   },

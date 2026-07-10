@@ -3,7 +3,7 @@
  * Location: examples/react-vite/src/App.tsx
  */
 
-import { InspectorMeta } from '@tauri-plugin/visual-editor-sdk/react';
+import { InspectorMeta } from '@iamthamanic/visual-editor-sdk/react';
 import { DemoCard } from './components/DemoCard';
 import { openModalWebview } from './lib/openModalWebview';
 

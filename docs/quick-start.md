@@ -93,7 +93,7 @@ Replace `"main"` with your window label(s). Add `"visual-inspector"` only if `ov
 Install once:
 
 ```bash
-npm install @tauri-plugin/visual-editor-sdk
+npm install @iamthamanic/visual-editor-sdk
 ```
 
 ### React
@@ -101,7 +101,7 @@ npm install @tauri-plugin/visual-editor-sdk
 Wrap interactive UI you want to inspect:
 
 ```tsx
-import { InspectorMeta } from '@tauri-plugin/visual-editor-sdk/react';
+import { InspectorMeta } from '@iamthamanic/visual-editor-sdk/react';
 
 export function SaveButton() {
   return (
@@ -134,7 +134,7 @@ export function SaveButton() {
 Or in JS:
 
 ```ts
-import { setInspectorMetadata } from '@tauri-plugin/visual-editor-sdk';
+import { setInspectorMetadata } from '@iamthamanic/visual-editor-sdk';
 
 setInspectorMetadata(button, {
   component: 'SaveButton',
@@ -192,7 +192,7 @@ Guest JS loads **only when the overlay opens**, not during initial webview regis
 
 ```bash
 cargo update -p tauri-plugin-visual-editor
-npm update @tauri-plugin/visual-editor-sdk
+npm update @iamthamanic/visual-editor-sdk
 ```
 
 See [consuming-apps.md](./consuming-apps.md) and [RELEASE.md](./RELEASE.md).

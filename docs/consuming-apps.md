@@ -7,7 +7,7 @@ How host apps depend on **published** plugin releases.
 | Where you work | Source of truth |
 |----------------|-----------------|
 | **Host app** (Scriptony, etc.) | crates.io `tauri-plugin-visual-editor` |
-| **Metadata SDK** (recommended) | npm `@tauri-plugin/visual-editor-sdk` |
+| **Metadata SDK** (recommended) | npm `@iamthamanic/visual-editor-sdk` |
 | **This repo** (plugin dev) | Publish → host runs `cargo update` |
 
 Guest overlay JS is **inside the Rust crate** — hosts do **not** `npm install @tauri-plugin/visual-editor`.
@@ -51,11 +51,11 @@ tauri-plugin-visual-editor = { version = "0.1", features = ["visual-inspector"] 
 ## Recommended: SDK metadata (best Context Bundle quality)
 
 ```bash
-npm install @tauri-plugin/visual-editor-sdk
+npm install @iamthamanic/visual-editor-sdk
 ```
 
 ```tsx
-import { InspectorMeta } from '@tauri-plugin/visual-editor-sdk/react';
+import { InspectorMeta } from '@iamthamanic/visual-editor-sdk/react';
 
 <InspectorMeta component="SaveButton" file="src/SaveButton.tsx" id="save">
   <button>Save</button>
@@ -72,7 +72,7 @@ Annotate every component you expect users to inspect: buttons, forms, panels, mo
 
 ```bash
 cargo update -p tauri-plugin-visual-editor
-npm update @tauri-plugin/visual-editor-sdk
+npm update @iamthamanic/visual-editor-sdk
 ```
 
 **Dependabot:** copy [templates/consuming-app/dependabot.yml](../templates/consuming-app/dependabot.yml) → host `.github/dependabot.yml`
