@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented here. Version numbers stay in sync across the Rust crates and `@iamthamanic/visual-editor-sdk`.
 
+## [0.1.1] - 2026-07-10
+
+### Fixed
+
+- Embedded toolbar no longer disappears after Hard Reload on slow hosts (e.g. Scriptony): restore waits for page readiness, verifies toolbar mount, extends retry window to 15s, and falls back to `open_overlay_for_app`.
+
 ## [0.1.0] - 2026-07-10
 
 ### Added
@@ -13,4 +19,5 @@ All notable changes to this project are documented here. Version numbers stay in
 - Optional `@iamthamanic/visual-editor-sdk` for `data-inspector-*` metadata
 - Examples: `react-vite`, `vanilla`
 
+[0.1.1]: https://github.com/iamthamanic/tauri-plugin-visual-editor/releases/tag/v0.1.1
 [0.1.0]: https://github.com/iamthamanic/tauri-plugin-visual-editor/releases/tag/v0.1.0

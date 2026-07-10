@@ -34,11 +34,13 @@ pub fn hard_reload<R: Runtime>(
         .map_err(|e| format!("reload failed: {e}"))?;
 
     if uses_embedded && (overlay_open || picker_enabled) {
+        let defer_ms = config.overlay_defer_ms;
         schedule_embedded_restore(
             app.clone(),
             webview_label.to_string(),
             overlay_open,
             picker_enabled,
+            defer_ms,
         );
     }
 
@@ -79,32 +81,59 @@ pub fn toggle_devtools<R: Runtime>(
     }
 }
 
+const TOOLBAR_ROOT_ID: &str = "visual-editor-toolbar-root";
+/// ~15s — heavy hosts (e.g. Scriptony) need time after cache-clear reload.
+const RESTORE_MAX_ATTEMPTS: u32 = 150;
+
+fn page_interactive<R: Runtime>(webview: &tauri::Webview<R>) -> bool {
+    webview
+        .eval(
+            r#"if(document.readyState!=='complete'&&document.readyState!=='interactive')throw new Error('not-ready')"#,
+        )
+        .is_ok()
+}
+
+fn toolbar_mounted<R: Runtime>(webview: &tauri::Webview<R>) -> bool {
+    webview
+        .eval(&format!(
+            r#"if(!document.getElementById('{TOOLBAR_ROOT_ID}'))throw new Error('missing-toolbar')"#,
+        ))
+        .is_ok()
+}
+
 fn schedule_embedded_restore<R: Runtime>(
     app: AppHandle<R>,
     label: String,
     show_toolbar: bool,
     activate_picker: bool,
+    defer_ms: u64,
 ) {
     tauri::async_runtime::spawn(async move {
-        for _ in 0..30 {
+        let mut deferred = false;
+        for _ in 0..RESTORE_MAX_ATTEMPTS {
             tokio::time::sleep(Duration::from_millis(100)).await;
             let Some(window) = app.get_webview_window(&label) else {
                 continue;
             };
             let webview = window.as_ref();
-            if webview.eval("document.readyState").is_err() {
+            if !page_interactive(webview) {
                 continue;
             }
-            let restored = if show_toolbar {
-                bootstrap_guest(webview)
-                    .and_then(|_| show_embedded_toolbar(webview))
-                    .is_ok()
-            } else if activate_picker {
-                bootstrap_guest(webview).is_ok()
-            } else {
-                true
-            };
-            if !restored {
+            if !deferred && defer_ms > 0 {
+                deferred = true;
+                tokio::time::sleep(Duration::from_millis(defer_ms)).await;
+            }
+            if show_toolbar {
+                if bootstrap_guest(webview).is_err() {
+                    continue;
+                }
+                if show_embedded_toolbar(webview).is_err() {
+                    continue;
+                }
+                if !toolbar_mounted(webview) {
+                    continue;
+                }
+            } else if activate_picker && bootstrap_guest(webview).is_err() {
                 continue;
             }
             if activate_picker {
@@ -118,7 +147,22 @@ fn schedule_embedded_restore<R: Runtime>(
                 );
                 let _ = window.eval(&script);
             }
-            break;
+            hub_emit(&app);
+            return;
+        }
+
+        // Fallback: host reload took longer than the poll window — force overlay reopen.
+        if show_toolbar {
+            crate::webview::open_overlay_for_app(&app);
+        } else if activate_picker {
+            let hub = app.state::<InspectorHub>();
+            let _ = crate::webview::set_guest_active_for_app(&app, &hub, true);
+            hub_emit(&app);
         }
     });
+}
+
+fn hub_emit<R: Runtime>(app: &AppHandle<R>) {
+    let hub = app.state::<InspectorHub>();
+    hub.emit_state(app);
 }

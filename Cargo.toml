@@ -4,7 +4,7 @@ resolver = "2"
 exclude = ["examples/react-vite/src-tauri", "examples/vanilla/src-tauri"]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/iamthamanic/tauri-plugin-visual-editor"
