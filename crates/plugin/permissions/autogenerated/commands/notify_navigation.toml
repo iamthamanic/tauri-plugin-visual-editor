@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-notify-navigation"
+description = "Enables the notify_navigation command without any pre-configured scope."
+commands.allow = ["notify_navigation"]
+
+[[permission]]
+identifier = "deny-notify-navigation"
+description = "Denies the notify_navigation command without any pre-configured scope."
+commands.deny = ["notify_navigation"]

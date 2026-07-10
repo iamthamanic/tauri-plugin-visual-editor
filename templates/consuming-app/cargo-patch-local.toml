@@ -1,0 +1,8 @@
+# Local-only override while developing the plugin (do NOT commit in Scriptony).
+# Save as: scriptony/src-tauri/.cargo/config.toml
+#
+# Replace the path with your machine's path to this monorepo.
+
+[patch.crates-io]
+tauri-plugin-visual-editor = { path = "/Users/you/.../tauri-plugin-visual-editor/crates/plugin", features = ["visual-inspector"] }
+tauri-plugin-visual-editor-core = { path = "/Users/you/.../tauri-plugin-visual-editor/crates/core" }

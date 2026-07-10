@@ -31,6 +31,20 @@ impl Session {
         self.selected_elements.len() < before
     }
 
+    pub fn remove_capture(&mut self, id: &str) -> bool {
+        let before = self.captures.len();
+        self.captures.retain(|c| c.id != id);
+        if self.primary_capture_id.as_deref() == Some(id) {
+            self.primary_capture_id = self.captures.first().map(|c| c.id.clone());
+        }
+        for element in &mut self.selected_elements {
+            if element.linked_capture_id.as_deref() == Some(id) {
+                element.linked_capture_id = None;
+            }
+        }
+        self.captures.len() < before
+    }
+
     pub fn add_capture(&mut self, capture: Capture) {
         let id = capture.id.clone();
         self.captures.push(capture);
@@ -168,6 +182,17 @@ mod tests {
         session.add_capture(sample_capture("c2"));
         session.set_primary_capture("c2");
         assert_eq!(session.primary_capture().unwrap().id, "c2");
+    }
+
+    #[test]
+    fn remove_capture_updates_primary() {
+        let mut session = Session::new();
+        session.add_capture(sample_capture("c1"));
+        session.add_capture(sample_capture("c2"));
+        session.set_primary_capture("c2");
+        assert!(session.remove_capture("c2"));
+        assert_eq!(session.captures.len(), 1);
+        assert_eq!(session.primary_capture_id.as_deref(), Some("c1"));
     }
 
     #[test]

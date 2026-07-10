@@ -195,7 +195,9 @@ pub async fn capture_with_timeout<R: Runtime>(
     let config = crate::config::from_app(&app);
     let app_clone = app.clone();
 
-    timeout(
+    let ui_guard = crate::webview::CaptureUiGuard::suspend(&app, hub);
+
+    let result = timeout(
         Duration::from_secs(CAPTURE_TIMEOUT_SECS),
         tauri::async_runtime::spawn_blocking(move || {
             capture_sync(&app_clone, &settings, &config, ctx, options)
@@ -203,7 +205,10 @@ pub async fn capture_with_timeout<R: Runtime>(
     )
     .await
     .map_err(|_| format!("Screenshot capture timed out after {CAPTURE_TIMEOUT_SECS}s"))?
-    .map_err(|e| e.to_string())?
+    .map_err(|e| e.to_string())?;
+
+    ui_guard.resume(&app, hub);
+    result
 }
 
 impl From<crate::models::BoundsDto> for Bounds {

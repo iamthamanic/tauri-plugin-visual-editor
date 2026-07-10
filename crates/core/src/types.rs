@@ -119,6 +119,15 @@ pub struct InspectionTarget {
     pub pinned: bool,
 }
 
+/// Ordered composer block from the contenteditable DOM (text + chip refs).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ComposerBlock {
+    Text { content: String },
+    Element { id: String },
+    Capture { id: String },
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

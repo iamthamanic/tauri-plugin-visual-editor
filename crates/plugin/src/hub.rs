@@ -4,7 +4,10 @@ use std::sync::Mutex;
 
 use tauri::{AppHandle, Emitter, Runtime, Webview};
 use tauri_plugin_visual_editor_core::{
-    bundle::{export_context_bundle, BundleTarget},
+    bundle::{
+        export_composer_context, export_composer_ordered, export_context_bundle, BundleTarget,
+    },
+    types::ComposerBlock,
     types::{InspectionTarget, Session, WebViewRegistration, WebviewStatus},
 };
 
@@ -186,6 +189,16 @@ impl InspectorHub {
         )
     }
 
+    pub fn export_composer(&self) -> String {
+        let inner = self.0.lock().expect("hub mutex poisoned");
+        export_composer_context(&inner.session)
+    }
+
+    pub fn export_composer_ordered(&self, blocks: &[ComposerBlock]) -> String {
+        let inner = self.0.lock().expect("hub mutex poisoned");
+        export_composer_ordered(&inner.session, blocks)
+    }
+
     pub fn record_capture(&self, capture: tauri_plugin_visual_editor_core::types::Capture) {
         let mut inner = self.0.lock().expect("hub mutex poisoned");
         inner.session.add_capture(capture);
@@ -224,6 +237,16 @@ impl InspectorHub {
                 {
                     inner.session.selected_elements.remove(idx);
                 } else {
+                    inner.session.add_element(element);
+                }
+            }
+            "add" => {
+                if !inner
+                    .session
+                    .selected_elements
+                    .iter()
+                    .any(|e| e.selector == selector)
+                {
                     inner.session.add_element(element);
                 }
             }
@@ -277,6 +300,24 @@ impl InspectorHub {
     pub fn set_issue_text(&self, text: Option<String>) {
         let mut inner = self.0.lock().expect("hub mutex poisoned");
         inner.session.set_issue_text(text);
+    }
+
+    pub fn remove_element(&self, id: &str) -> Result<(), String> {
+        let mut inner = self.0.lock().expect("hub mutex poisoned");
+        if inner.session.remove_element(id) {
+            Ok(())
+        } else {
+            Err(format!("Unknown element: {id}"))
+        }
+    }
+
+    pub fn remove_capture(&self, id: &str) -> Result<(), String> {
+        let mut inner = self.0.lock().expect("hub mutex poisoned");
+        if inner.session.remove_capture(id) {
+            Ok(())
+        } else {
+            Err(format!("Unknown capture: {id}"))
+        }
     }
 
     pub fn set_primary_capture(&self, capture_id: &str) -> Result<(), String> {

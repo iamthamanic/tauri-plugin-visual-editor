@@ -19,10 +19,16 @@ const COMMANDS: &[&str] = &[
     "copy_screenshot_path",
     "open_screenshot_folder",
     "hard_reload",
+    "toggle_devtools",
     "report_selection",
+    "notify_navigation",
     "set_issue_text",
+    "remove_element",
+    "remove_capture",
     "set_primary_capture",
     "set_capture_included",
+    "save_capture_image",
+    "read_capture_image",
     "update_settings",
 ];
 

@@ -11,18 +11,30 @@ Reference implementations:
 
 ## 1. Install dependencies
 
+### Host apps (Scriptony, production) — published crate
+
+```toml
+# src-tauri/Cargo.toml
+tauri-plugin-visual-editor = { version = "0.1", features = ["visual-inspector"] }
+```
+
+Guest JS is **bundled in the Rust crate** — hosts do **not** install `@tauri-plugin/visual-editor` from npm.
+
+After a new plugin release: `cargo update -p tauri-plugin-visual-editor` in the host repo. See [consuming-apps.md](./consuming-apps.md).
+
+### Optional metadata SDK
+
 ```bash
-# Rust plugin (enable the inspector feature)
-cargo add tauri-plugin-visual-editor --features visual-inspector
-
-# Guest runtime injected into host webviews
-npm install @tauri-plugin/visual-editor
-
-# Optional: metadata helpers for React or vanilla
 npm install @tauri-plugin/visual-editor-sdk
 ```
 
-In a monorepo or path dependency, mirror the examples:
+### Monorepo / local development
+
+```bash
+# Guest package (builds into crates/plugin/guest/ — plugin authors only)
+npm install
+npm run bundle --workspace=@tauri-plugin/visual-editor
+```
 
 ```toml
 # src-tauri/Cargo.toml
@@ -70,6 +82,9 @@ Add to `tauri.conf.json`:
 | `enabled` | Master switch — when `false`, all commands are denied |
 | `allow` | Secondary opt-in — set `false` to hard-block inspector even if enabled |
 | `allowInProduction` | Required `true` for release builds (see [Security gates](./plugin-api.md#security-gates)) |
+| `autoOpen` | When `true` (default), overlay opens automatically when the first host webview is ready |
+| `overlayDeferMs` | Milliseconds to wait before auto-open (default `100`). Host UI paints first; use `0` for instant toolbar |
+| `overlayMode` | `embedded` (default) — toolbar injected into host webview; `window` — separate `visual-inspector` window |
 | `projectRoot` | Optional — required when screenshot directory mode is `project` |
 
 ---
@@ -114,7 +129,13 @@ The guest package (`@tauri-plugin/visual-editor`) is bundled into the Rust crate
 
 ---
 
-## 6. Optional SDK metadata
+## 6. SDK metadata (recommended for best bundle quality)
+
+Without metadata the inspector still works (DOM-only / L1). For **component names, file paths, and stable IDs** in Context Bundles, use the SDK.
+
+```bash
+npm install @tauri-plugin/visual-editor-sdk
+```
 
 Annotate components so the selector algorithm can produce stable `data-inspector-*` attributes:
 
@@ -147,6 +168,8 @@ Build the SDK before typechecking examples in CI:
 ```bash
 npm run build --workspace=@tauri-plugin/visual-editor-sdk
 ```
+
+**Tip:** wrap every user-facing control you want to inspect — buttons, inputs, cards, modals.
 
 ---
 
@@ -224,6 +247,8 @@ Checklist:
 
 ## Related docs
 
+- [consuming-apps.md](./consuming-apps.md) — Scriptony / host apps on published versions
+- [RELEASE.md](./RELEASE.md) — publish workflow
 - [plugin-api.md](./plugin-api.md) — commands, types, troubleshooting
 - [architecture.md](./architecture.md) — hub, events, screenshot pipeline
 - [context-bundle-format.md](./context-bundle-format.md) — export template

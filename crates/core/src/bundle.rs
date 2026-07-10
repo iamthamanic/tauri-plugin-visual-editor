@@ -1,7 +1,10 @@
 //! Context Bundle text export (English, fixed V1 format).
 
 use crate::relationships::{compute_relationships, RelationshipHints};
-use crate::types::{Capture, CaptureType, ElementStatus, SelectedElement, Session, Visibility};
+use crate::selector::is_stable_class;
+use crate::types::{
+    Capture, CaptureType, ElementSnapshot, ElementStatus, SelectedElement, Session, Visibility,
+};
 
 /// Target webview metadata for bundle header.
 #[derive(Debug, Clone)]
@@ -63,6 +66,261 @@ pub fn export_context_bundle(
     }
 
     out
+}
+
+/// Human-readable composer text preserving DOM block order (text + chips interleaved).
+pub fn export_composer_ordered(
+    session: &Session,
+    blocks: &[crate::types::ComposerBlock],
+) -> String {
+    use crate::types::ComposerBlock;
+
+    let mut out = String::new();
+
+    for block in blocks {
+        match block {
+            ComposerBlock::Text { content } => {
+                let text = content.trim_matches('\u{200B}');
+                if text.is_empty() {
+                    continue;
+                }
+                if !out.is_empty() {
+                    ensure_paragraph_break(&mut out);
+                }
+                out.push_str(text);
+            }
+            ComposerBlock::Element { id } => {
+                let Some(element) = session.selected_elements.iter().find(|el| el.id == *id) else {
+                    continue;
+                };
+                if !out.is_empty() {
+                    ensure_paragraph_break(&mut out);
+                }
+                out.push_str(&element_composer_ref(element));
+            }
+            ComposerBlock::Capture { id } => {
+                let Some((index, capture)) = session
+                    .captures
+                    .iter()
+                    .enumerate()
+                    .find(|(_, cap)| cap.id == *id)
+                else {
+                    continue;
+                };
+                if !capture.include_in_copy {
+                    continue;
+                }
+                if !out.is_empty() {
+                    ensure_paragraph_break(&mut out);
+                }
+                out.push_str(&capture_composer_ref(index + 1, capture));
+            }
+        }
+    }
+
+    out.trim_end().to_string()
+}
+
+fn ensure_paragraph_break(out: &mut String) {
+    if out.ends_with("\n\n") {
+        return;
+    }
+    if out.ends_with('\n') {
+        out.push('\n');
+    } else {
+        out.push_str("\n\n");
+    }
+}
+
+/// Human-readable composer text for AI editor paste (issue + bracketed element refs).
+pub fn export_composer_context(session: &Session) -> String {
+    let issue = session.issue_text.as_deref().unwrap_or("").trim();
+    let mut refs: Vec<String> = Vec::new();
+
+    for element in &session.selected_elements {
+        refs.push(element_composer_ref(element));
+    }
+    for (index, capture) in session.captures.iter().enumerate() {
+        if capture.include_in_copy {
+            refs.push(capture_composer_ref(index + 1, capture));
+        }
+    }
+
+    if issue.is_empty() && refs.is_empty() {
+        return String::new();
+    }
+
+    let mut out = String::new();
+    if !issue.is_empty() {
+        out.push_str(issue);
+    }
+    if !refs.is_empty() {
+        if !out.is_empty() {
+            out.push_str("\n\n");
+        }
+        out.push_str(&refs.join("\n"));
+    }
+    out
+}
+
+fn element_composer_ref(element: &SelectedElement) -> String {
+    let label = element_chip_label(element);
+    let mut parts: Vec<String> = Vec::new();
+
+    if let Some(file) = element.file.as_deref().filter(|value| !value.is_empty()) {
+        parts.push(format!("file: {file}"));
+    }
+    if let Some(component) = element
+        .component
+        .as_deref()
+        .filter(|value| !value.is_empty())
+    {
+        parts.push(format!("component: {component}"));
+    }
+    if let Some(id) = element
+        .inspector_id
+        .as_deref()
+        .filter(|value| !value.is_empty())
+    {
+        parts.push(format!("inspector-id: {id}"));
+    } else if let Some(id) = attr_value(&element.snapshot, "data-inspector-id") {
+        parts.push(format!("inspector-id: {id}"));
+    }
+
+    parts.push(format!("selector: {}", element.selector));
+    parts.push(format!("dom: {}", element.snapshot.dom_path));
+
+    if let Some(text) = element
+        .snapshot
+        .text
+        .as_deref()
+        .filter(|value| !value.is_empty())
+    {
+        let truncated: String = text.chars().take(80).collect();
+        let ellipsis = if text.chars().count() > 80 { "…" } else { "" };
+        parts.push(format!("text: \"{truncated}{ellipsis}\""));
+    }
+
+    format!("[{label} | {}]", parts.join(" | "))
+}
+
+fn capture_composer_ref(index: usize, capture: &Capture) -> String {
+    let label = if capture.capture_type == CaptureType::Webview {
+        format!("Screenshot #{index}")
+    } else {
+        format!("{} #{index}", capture_type_label(capture.capture_type))
+    };
+    format!("[{label} | path: {} | image attached]", capture.path)
+}
+
+fn element_chip_label(element: &SelectedElement) -> String {
+    let tag = &element.snapshot.tag;
+    if let Some(comp) = element
+        .component
+        .as_deref()
+        .filter(|value| !value.is_empty())
+    {
+        return format!("<{comp}>");
+    }
+    if let Some(comp) = attr_value(&element.snapshot, "data-inspector-component") {
+        return format!("<{comp}>");
+    }
+    if let Some(id) = element
+        .inspector_id
+        .as_deref()
+        .filter(|value| !value.is_empty())
+    {
+        return format!("<{tag} data-inspector-id=\"{id}\">");
+    }
+    if let Some(id) = attr_value(&element.snapshot, "data-inspector-id") {
+        return format!("<{tag} data-inspector-id=\"{id}\">");
+    }
+    if let Some(id) = attr_value(&element.snapshot, "id") {
+        return format!("<{tag} id=\"{id}\">");
+    }
+    if let Some(class) = chip_class_from_snapshot(&element.snapshot) {
+        return format!("<{tag} class=\"{class}\">");
+    }
+    format!("<{tag}>")
+}
+
+fn attr_value<'a>(snapshot: &'a ElementSnapshot, key: &str) -> Option<&'a str> {
+    snapshot
+        .attributes
+        .iter()
+        .find(|(attr_key, _)| attr_key == key)
+        .map(|(_, value)| value.as_str())
+}
+
+fn is_layout_utility_class(class: &str) -> bool {
+    const SINGLE: &[&str] = &[
+        "flex",
+        "inline-flex",
+        "grid",
+        "inline-grid",
+        "block",
+        "inline-block",
+        "inline",
+        "hidden",
+        "contents",
+        "relative",
+        "absolute",
+        "fixed",
+        "sticky",
+        "static",
+        "container",
+        "truncate",
+        "sr-only",
+    ];
+    let lower = class.to_ascii_lowercase();
+    if SINGLE.contains(&lower.as_str()) {
+        return true;
+    }
+    const PREFIXES: &[&str] = &[
+        "flex-",
+        "items-",
+        "justify-",
+        "gap-",
+        "space-",
+        "p-",
+        "px-",
+        "py-",
+        "pt-",
+        "pb-",
+        "pl-",
+        "pr-",
+        "m-",
+        "mx-",
+        "my-",
+        "mt-",
+        "mb-",
+        "ml-",
+        "mr-",
+        "w-",
+        "h-",
+        "min-",
+        "max-",
+        "col-",
+        "row-",
+        "grid-",
+        "self-",
+        "place-",
+        "overflow-",
+        "z-",
+        "order-",
+        "basis-",
+    ];
+    PREFIXES.iter().any(|prefix| lower.starts_with(prefix))
+}
+
+fn chip_class_from_snapshot(snapshot: &ElementSnapshot) -> Option<String> {
+    let classes = attr_value(snapshot, "class")?;
+    for class in classes.split_whitespace() {
+        if is_stable_class(class) && !is_layout_utility_class(class) {
+            return Some(class.to_string());
+        }
+    }
+    None
 }
 
 fn write_capture_section(
@@ -283,5 +541,198 @@ mod tests {
             None,
         );
         assert!(bundle.contains("Issue:\nFix overlap"));
+    }
+
+    #[test]
+    fn composer_joins_issue_and_bracketed_refs() {
+        let mut session = sample_session_l1();
+        session.set_issue_text(Some("Fix header on mobile".into()));
+        let composer = export_composer_context(&session);
+        assert!(composer.starts_with("Fix header on mobile"));
+        assert!(composer.contains(
+            "[<button> | selector: button | dom: html > body > button | text: \"Export\"]"
+        ));
+        assert!(composer.contains("[Screenshot #1 | path: /tmp/shot.png | image attached]"));
+        assert!(composer.contains("\n\n["));
+    }
+
+    #[test]
+    fn composer_includes_file_and_component_when_known() {
+        let mut session = Session::new();
+        session.add_element(SelectedElement {
+            id: "e1".into(),
+            selector: "[data-inspector-id=\"nav.export\"]".into(),
+            component: Some("ExportButton".into()),
+            file: Some("src/components/ExportButton.tsx".into()),
+            inspector_id: Some("nav.export".into()),
+            entity: None,
+            status: ElementStatus::Valid,
+            linked_capture_id: None,
+            snapshot: ElementSnapshot {
+                webview_id: "main".into(),
+                tag: "button".into(),
+                text: Some("Export".into()),
+                attributes: vec![("data-inspector-id".into(), "nav.export".into())],
+                dom_path: "html > body > button".into(),
+                visibility: Visibility::Visible,
+                css_bounds: Bounds {
+                    x: 0.0,
+                    y: 0.0,
+                    width: 100.0,
+                    height: 40.0,
+                },
+                physical_bounds: Bounds {
+                    x: 0.0,
+                    y: 0.0,
+                    width: 200.0,
+                    height: 80.0,
+                },
+                visible_bounds: None,
+                full_bounds: None,
+                computed_layout: vec![],
+            },
+        });
+        let composer = export_composer_context(&session);
+        assert!(composer.contains("file: src/components/ExportButton.tsx"));
+        assert!(composer.contains("component: ExportButton"));
+        assert!(composer.contains("inspector-id: nav.export"));
+    }
+
+    #[test]
+    fn composer_chip_label_uses_first_class() {
+        let mut session = Session::new();
+        session.add_element(SelectedElement {
+            id: "e1".into(),
+            selector: "h4".into(),
+            component: None,
+            file: None,
+            inspector_id: None,
+            entity: None,
+            status: ElementStatus::Valid,
+            linked_capture_id: None,
+            snapshot: ElementSnapshot {
+                webview_id: "main".into(),
+                tag: "h4".into(),
+                text: None,
+                attributes: vec![("class".into(), "text-2xl font-bold".into())],
+                dom_path: "html > h4".into(),
+                visibility: Visibility::Visible,
+                css_bounds: Bounds {
+                    x: 0.0,
+                    y: 0.0,
+                    width: 100.0,
+                    height: 24.0,
+                },
+                physical_bounds: Bounds {
+                    x: 0.0,
+                    y: 0.0,
+                    width: 200.0,
+                    height: 48.0,
+                },
+                visible_bounds: None,
+                full_bounds: None,
+                computed_layout: vec![],
+            },
+        });
+        let composer = export_composer_context(&session);
+        assert!(composer.contains("[<h4 class=\"text-2xl\"> | selector: h4 | dom: html > h4]"));
+    }
+
+    #[test]
+    fn composer_chip_skips_layout_utilities() {
+        let mut session = Session::new();
+        session.add_element(SelectedElement {
+            id: "e1".into(),
+            selector: "div.card".into(),
+            component: None,
+            file: None,
+            inspector_id: None,
+            entity: None,
+            status: ElementStatus::Valid,
+            linked_capture_id: None,
+            snapshot: ElementSnapshot {
+                webview_id: "main".into(),
+                tag: "div".into(),
+                text: None,
+                attributes: vec![("class".into(), "flex items-center card".into())],
+                dom_path: "html > div".into(),
+                visibility: Visibility::Visible,
+                css_bounds: Bounds {
+                    x: 0.0,
+                    y: 0.0,
+                    width: 100.0,
+                    height: 24.0,
+                },
+                physical_bounds: Bounds {
+                    x: 0.0,
+                    y: 0.0,
+                    width: 200.0,
+                    height: 48.0,
+                },
+                visible_bounds: None,
+                full_bounds: None,
+                computed_layout: vec![],
+            },
+        });
+        let composer = export_composer_context(&session);
+        assert!(composer.contains("[<div class=\"card\"> | selector: div.card | dom: html > div]"));
+        assert!(!composer.contains("class=\"flex\""));
+    }
+
+    #[test]
+    fn composer_empty_when_no_content() {
+        assert!(export_composer_context(&Session::new()).is_empty());
+    }
+
+    #[test]
+    fn composer_ordered_preserves_dom_block_sequence() {
+        use crate::types::ComposerBlock;
+
+        let mut session = sample_session_l1();
+        session.set_issue_text(Some("ignored when blocks provided".into()));
+        let blocks = vec![
+            ComposerBlock::Element {
+                id: session.selected_elements[0].id.clone(),
+            },
+            ComposerBlock::Capture {
+                id: session.captures[0].id.clone(),
+            },
+            ComposerBlock::Text {
+                content: "was das problem ist\n".into(),
+            },
+            ComposerBlock::Text {
+                content: "guck wenn du hier sachen machst".into(),
+            },
+        ];
+        let composer = export_composer_ordered(&session, &blocks);
+        let el_pos = composer.find("[<button>").expect("element ref");
+        let cap_pos = composer.find("[Screenshot #1").expect("capture ref");
+        let text_pos = composer.find("was das problem ist").expect("inline text");
+        assert!(el_pos < cap_pos);
+        assert!(cap_pos < text_pos);
+        assert!(composer.contains("guck wenn du hier sachen machst"));
+        assert!(!composer.starts_with("ignored"));
+    }
+
+    #[test]
+    fn composer_ordered_adds_paragraph_breaks_between_blocks() {
+        use crate::types::ComposerBlock;
+
+        let session = sample_session_l1();
+        let blocks = vec![
+            ComposerBlock::Element {
+                id: session.selected_elements[0].id.clone(),
+            },
+            ComposerBlock::Text {
+                content: "hier ist das problem".into(),
+            },
+            ComposerBlock::Capture {
+                id: session.captures[0].id.clone(),
+            },
+        ];
+        let composer = export_composer_ordered(&session, &blocks);
+        assert!(composer.starts_with("[<button>"));
+        assert!(composer.contains("\n\nhier ist das problem\n\n"));
+        assert!(composer.contains("[Screenshot #1"));
     }
 }

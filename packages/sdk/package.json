@@ -13,19 +13,34 @@
     "./react": {
       "types": "./dist/react-entry.d.ts",
       "import": "./dist/react-entry.js"
-    }
+    },
+    "./overlay": {
+      "types": "./dist/overlay/index.d.ts",
+      "import": "./dist/overlay/index.js"
+    },
+    "./overlay.css": "./dist/overlay/overlay.css"
   },
   "files": ["dist", "README.md"],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && mkdir -p dist/overlay && cp src/overlay/overlay.css dist/overlay/overlay.css",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iamthamanic/tauri-plugin-visual-editor.git",
+    "directory": "packages/sdk"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
+    "@tauri-apps/api": ">=2",
     "react": ">=18"
   },
   "peerDependenciesMeta": {
+    "@tauri-apps/api": { "optional": true },
     "react": { "optional": true }
   },
   "devDependencies": {

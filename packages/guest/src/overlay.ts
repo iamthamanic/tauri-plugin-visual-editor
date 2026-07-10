@@ -4,6 +4,7 @@
  */
 
 import type { ElementSnapshot } from './types.js';
+import { markCaptureHideRoot } from './capture-ui.js';
 
 const ROOT_ID = 'visual-editor-overlay-root';
 
@@ -19,6 +20,7 @@ function ensureRoot(): HTMLDivElement {
     root = document.createElement('div');
     root.id = ROOT_ID;
     root.setAttribute('data-visual-editor-overlay', 'true');
+    markCaptureHideRoot(root);
     Object.assign(root.style, {
       position: 'fixed',
       inset: '0',
@@ -51,8 +53,11 @@ function labelFor(snapshot: ElementSnapshot): string {
 export class OverlayRenderer {
   private hoverEl: HTMLDivElement | null = null;
   private hoverLabel: HTMLDivElement | null = null;
+  private focusEl: HTMLDivElement | null = null;
+  private focusLabel: HTMLDivElement | null = null;
   private overlayColor = '#3b82f6';
   private selectionColor = '#22c55e';
+  private focusColor = '#f59e0b';
 
   configure(options: { overlayColor?: string }): void {
     if (options.overlayColor) {
@@ -68,6 +73,8 @@ export class OverlayRenderer {
     document.getElementById(ROOT_ID)?.remove();
     this.hoverEl = null;
     this.hoverLabel = null;
+    this.focusEl = null;
+    this.focusLabel = null;
   }
 
   setHover(snapshot: ElementSnapshot | null): void {
@@ -102,6 +109,45 @@ export class OverlayRenderer {
       top: `${Math.max(0, snapshot.css_bounds.y - 16)}px`,
     });
     this.hoverLabel!.textContent = labelFor(snapshot);
+  }
+
+  setFocus(snapshot: ElementSnapshot | null): void {
+    const root = ensureRoot();
+    if (!snapshot) {
+      this.focusEl?.remove();
+      this.focusLabel?.remove();
+      this.focusEl = null;
+      this.focusLabel = null;
+      return;
+    }
+
+    if (!this.focusEl) {
+      this.focusEl = document.createElement('div');
+      this.focusLabel = document.createElement('div');
+      Object.assign(this.focusLabel.style, {
+        position: 'fixed',
+        font: '11px/1.2 system-ui, sans-serif',
+        background: 'rgba(245,158,11,0.95)',
+        color: '#111',
+        padding: '2px 6px',
+        borderRadius: '2px',
+        pointerEvents: 'none',
+        fontWeight: '600',
+      });
+      root.appendChild(this.focusEl);
+      root.appendChild(this.focusLabel);
+    }
+
+    Object.assign(this.focusEl!.style, {
+      ...boxStyle(snapshot.css_bounds, this.focusColor),
+      borderWidth: '2px',
+      boxShadow: '0 0 0 2px rgba(245,158,11,0.35)',
+    });
+    Object.assign(this.focusLabel!.style, {
+      left: `${snapshot.css_bounds.x}px`,
+      top: `${Math.max(0, snapshot.css_bounds.y - 18)}px`,
+    });
+    this.focusLabel!.textContent = labelFor(snapshot);
   }
 
   renderSelections(selections: OverlaySelection[]): void {

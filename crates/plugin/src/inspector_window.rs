@@ -1,14 +1,19 @@
-//! Inspector `WebviewWindow` lifecycle (`visual-inspector` label).
+//! Inspector overlay `WebviewWindow` lifecycle (`visual-inspector` label).
 
 use tauri::{
     http::{Response, StatusCode},
-    AppHandle, Manager, Runtime, Url, WebviewUrl, WebviewWindow, WebviewWindowBuilder,
+    AppHandle, Manager, PhysicalPosition, Runtime, Url, WebviewUrl, WebviewWindow,
+    WebviewWindowBuilder,
 };
 
 use crate::assets::{guess_mime, resolve_asset_path, InspectorAssets};
 use crate::hub::INSPECTOR_WINDOW_LABEL;
 
 pub const INSPECTOR_URL: &str = "tauri://visual-editor/index.html";
+
+const OVERLAY_WIDTH: f64 = 72.0;
+const OVERLAY_HEIGHT: f64 = 280.0;
+const EDGE_MARGIN: f64 = 8.0;
 
 pub fn protocol_response(path: &str) -> Response<Vec<u8>> {
     let asset_path = resolve_asset_path(path);
@@ -45,6 +50,65 @@ pub fn label_conflict<R: Runtime>(app: &AppHandle<R>) -> Option<String> {
     ))
 }
 
+fn anchor_window<R: Runtime>(app: &AppHandle<R>) -> Option<WebviewWindow<R>> {
+    app.webview_windows()
+        .into_values()
+        .find(|window| window.label() != INSPECTOR_WINDOW_LABEL)
+}
+
+pub fn position_overlay<R: Runtime>(app: &AppHandle<R>, overlay: &WebviewWindow<R>) {
+    let Some(parent) = anchor_window(app) else {
+        return;
+    };
+    let Ok(parent_pos) = parent.outer_position() else {
+        return;
+    };
+    let Ok(parent_size) = parent.outer_size() else {
+        return;
+    };
+    let Ok(overlay_size) = overlay.outer_size() else {
+        return;
+    };
+
+    let x =
+        parent_pos.x as f64 + parent_size.width as f64 - overlay_size.width as f64 - EDGE_MARGIN;
+    let y = parent_pos.y as f64 + EDGE_MARGIN;
+    let _ = overlay.set_position(PhysicalPosition::new(x as i32, y as i32));
+}
+
+pub fn ensure_overlay_open<R: Runtime>(app: &AppHandle<R>) {
+    let config = app.state::<crate::config::VisualEditorConfig>();
+    if !config.uses_window_overlay() {
+        return;
+    }
+
+    if app.get_webview_window(INSPECTOR_WINDOW_LABEL).is_some() {
+        if let Some(overlay) = app.get_webview_window(INSPECTOR_WINDOW_LABEL) {
+            let _ = overlay.show();
+            position_overlay(app, &overlay);
+        }
+        return;
+    }
+
+    let gates = app.state::<crate::security::RuntimeGates>();
+    if let Err(denial) = gates.check() {
+        eprintln!("visual-editor: overlay not opened — {}", denial.message());
+        return;
+    }
+
+    match open_inspector_window(app) {
+        Ok(overlay) => {
+            if let Some(hub) = app.try_state::<crate::hub::InspectorHub>() {
+                hub.open(false);
+                hub.emit_state(app);
+            }
+            position_overlay(app, &overlay);
+            let _ = overlay.show();
+        }
+        Err(err) => eprintln!("visual-editor: overlay open failed — {err}"),
+    }
+}
+
 pub fn open_inspector_window<R: Runtime>(app: &AppHandle<R>) -> Result<WebviewWindow<R>, String> {
     if let Some(message) = label_conflict(app) {
         return Err(message);
@@ -53,27 +117,30 @@ pub fn open_inspector_window<R: Runtime>(app: &AppHandle<R>) -> Result<WebviewWi
     if let Some(window) = app.get_webview_window(INSPECTOR_WINDOW_LABEL) {
         window
             .show()
-            .map_err(|e| format!("Inspector-Fenster anzeigen fehlgeschlagen: {e}"))?;
-        window
-            .set_focus()
-            .map_err(|e| format!("Inspector-Fokus setzen fehlgeschlagen: {e}"))?;
+            .map_err(|e| format!("Overlay anzeigen fehlgeschlagen: {e}"))?;
+        position_overlay(app, &window);
         return Ok(window);
     }
 
     let url = WebviewUrl::External(inspector_url()?);
-    WebviewWindowBuilder::new(app, INSPECTOR_WINDOW_LABEL, url)
+    let window = WebviewWindowBuilder::new(app, INSPECTOR_WINDOW_LABEL, url)
         .title("Visual Inspector")
-        .inner_size(420.0, 720.0)
-        .resizable(true)
+        .decorations(false)
+        .always_on_top(true)
+        .resizable(false)
+        .inner_size(OVERLAY_WIDTH, OVERLAY_HEIGHT)
+        .visible(true)
         .build()
-        .map_err(|e| format!("Inspector-Fenster erstellen fehlgeschlagen: {e}"))
+        .map_err(|e| format!("Overlay erstellen fehlgeschlagen: {e}"))?;
+    position_overlay(app, &window);
+    Ok(window)
 }
 
 pub fn close_inspector_window<R: Runtime>(app: &AppHandle<R>) -> Result<(), String> {
     if let Some(window) = app.get_webview_window(INSPECTOR_WINDOW_LABEL) {
         window
             .hide()
-            .map_err(|e| format!("Inspector-Fenster schließen fehlgeschlagen: {e}"))?;
+            .map_err(|e| format!("Overlay ausblenden fehlgeschlagen: {e}"))?;
     }
     Ok(())
 }
@@ -84,14 +151,27 @@ pub fn toggle_inspector_window<R: Runtime>(app: &AppHandle<R>) -> Result<bool, S
         if visible {
             window
                 .hide()
-                .map_err(|e| format!("Inspector-Fenster ausblenden fehlgeschlagen: {e}"))?;
+                .map_err(|e| format!("Overlay ausblenden fehlgeschlagen: {e}"))?;
             return Ok(false);
         }
         window
             .show()
-            .map_err(|e| format!("Inspector-Fenster anzeigen fehlgeschlagen: {e}"))?;
+            .map_err(|e| format!("Overlay anzeigen fehlgeschlagen: {e}"))?;
+        position_overlay(app, &window);
         return Ok(true);
     }
-    open_inspector_window(app)?;
+    let window = open_inspector_window(app)?;
+    position_overlay(app, &window);
     Ok(true)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn overlay_dimensions_are_positive() {
+        assert!(OVERLAY_WIDTH > 0.0);
+        assert!(OVERLAY_HEIGHT > 0.0);
+    }
 }

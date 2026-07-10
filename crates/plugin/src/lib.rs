@@ -61,6 +61,8 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
 fn init_inspector<R: Runtime>() -> TauriPlugin<R> {
     use tauri::Manager;
 
+    use crate::hub::INSPECTOR_WINDOW_LABEL;
+
     Builder::new("visual-editor")
         .register_uri_scheme_protocol("visual-editor", |_, request| {
             let path = request.uri().path();
@@ -74,6 +76,12 @@ fn init_inspector<R: Runtime>() -> TauriPlugin<R> {
             app.manage(hub);
             app.manage(gates);
             app.manage(plugin_config);
+
+            let handle = app.clone();
+            let open_handle = handle.clone();
+            let _ = handle.run_on_main_thread(move || {
+                crate::webview::maybe_auto_open_overlay(&open_handle);
+            });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -96,18 +104,27 @@ fn init_inspector<R: Runtime>() -> TauriPlugin<R> {
             commands::copy_screenshot_path,
             commands::open_screenshot_folder,
             commands::hard_reload,
+            commands::toggle_devtools,
             commands::report_selection,
+            commands::notify_navigation,
             commands::set_issue_text,
+            commands::remove_element,
+            commands::remove_capture,
             commands::set_primary_capture,
             commands::set_capture_included,
+            commands::save_capture_image,
+            commands::read_capture_image,
             commands::update_settings,
         ])
         .on_webview_ready(|webview| {
             let app = webview.app_handle();
-            if let Some(hub) = app.try_state::<InspectorHub>() {
-                hub.register_webview(&webview);
-                hub.emit_state(app);
+            if webview.label() == INSPECTOR_WINDOW_LABEL {
+                return;
             }
+            let hub = app.state::<InspectorHub>();
+            hub.register_webview(&webview);
+            hub.emit_state(app);
+            crate::webview::maybe_auto_open_overlay(app);
         })
         .build()
 }

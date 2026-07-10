@@ -3,6 +3,8 @@
  * Location: packages/guest/src/hover.ts
  */
 
+import { isInspectorUiElement } from './inspector-ui-guard.js';
+
 const INTERACTIVE_TAGS = new Set(['button', 'input', 'a', 'select', 'textarea', 'label']);
 
 function hasInspectorId(el: Element): boolean {
@@ -50,11 +52,18 @@ function scoreCandidate(el: Element): number {
  * Walk upward from the raw target to the best inspectable element.
  */
 export function resolveHoverTarget(raw: Element | null): Element | null {
+  if (isInspectorUiElement(raw)) {
+    return null;
+  }
   let current = raw;
   let best: Element | null = null;
   let bestScore = -1;
 
   while (current && current !== document.documentElement) {
+    if (isInspectorUiElement(current)) {
+      current = current.parentElement;
+      continue;
+    }
     const score = scoreCandidate(current);
     if (score > bestScore) {
       best = current;

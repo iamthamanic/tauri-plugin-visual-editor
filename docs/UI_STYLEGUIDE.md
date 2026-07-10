@@ -4,9 +4,9 @@ Applies **only** to `packages/inspector-app`. Host app overlays use minimal inli
 
 ## Principles
 
-- DevTools aesthetic: compact, information-dense, low visual noise
+- Compact floating overlay docked to the host window (toolbar + optional context panel)
 - German UI labels; English only in exported Context Bundle
-- No dimming overlays; preserve host app visibility
+- No dimming overlays on host webviews; preserve host app visibility
 
 ## Stack
 
@@ -39,25 +39,13 @@ Theme: `system` | `light` | `dark` (persistent setting)
 
 ## Components
 
-### InspectorPanel
+### FloatingToolbar
 
-Main layout: header (target selector + pin) → element list → captures → issue textarea → action bar
+Vertical icon strip: Hard Reload, Screenshot, Picker toggle, Context panel toggle
 
-### Toolbar
+### ContextPanel
 
-Actions: Enable/Disable, Capture, Revalidate, Clear, Hard Reload
-
-### SelectedElements
-
-Numbered list; stale/webview_closed badges; Select parent/child buttons
-
-### ScreenshotPreview
-
-Thumbnail grid; primary star; include/exclude checkbox
-
-### SettingsDialog
-
-Theme, shortcut, overlay color, cropPadding, screenshotDir
+Selection summary, issue textarea, Copy, Clear
 
 ## States
 

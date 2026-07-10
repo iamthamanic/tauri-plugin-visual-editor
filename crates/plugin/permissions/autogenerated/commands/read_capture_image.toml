@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-read-capture-image"
+description = "Enables the read_capture_image command without any pre-configured scope."
+commands.allow = ["read_capture_image"]
+
+[[permission]]
+identifier = "deny-read-capture-image"
+description = "Denies the read_capture_image command without any pre-configured scope."
+commands.deny = ["read_capture_image"]

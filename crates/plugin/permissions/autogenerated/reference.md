@@ -349,6 +349,32 @@ Denies the hard_reload command without any pre-configured scope.
 <tr>
 <td>
 
+`visual-editor:allow-notify-navigation`
+
+</td>
+<td>
+
+Enables the notify_navigation command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-notify-navigation`
+
+</td>
+<td>
+
+Denies the notify_navigation command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `visual-editor:allow-open`
 
 </td>
@@ -427,6 +453,84 @@ Denies the pin_target_webview command without any pre-configured scope.
 <tr>
 <td>
 
+`visual-editor:allow-read-capture-image`
+
+</td>
+<td>
+
+Enables the read_capture_image command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-read-capture-image`
+
+</td>
+<td>
+
+Denies the read_capture_image command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:allow-remove-capture`
+
+</td>
+<td>
+
+Enables the remove_capture command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-remove-capture`
+
+</td>
+<td>
+
+Denies the remove_capture command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:allow-remove-element`
+
+</td>
+<td>
+
+Enables the remove_element command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-remove-element`
+
+</td>
+<td>
+
+Denies the remove_element command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `visual-editor:allow-report-selection`
 
 </td>
@@ -472,6 +576,32 @@ Enables the revalidate command without any pre-configured scope.
 <td>
 
 Denies the revalidate command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:allow-save-capture-image`
+
+</td>
+<td>
+
+Enables the save_capture_image command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-save-capture-image`
+
+</td>
+<td>
+
+Denies the save_capture_image command without any pre-configured scope.
 
 </td>
 </tr>
@@ -602,6 +732,32 @@ Enables the toggle command without any pre-configured scope.
 <td>
 
 Denies the toggle command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:allow-toggle-devtools`
+
+</td>
+<td>
+
+Enables the toggle_devtools command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`visual-editor:deny-toggle-devtools`
+
+</td>
+<td>
+
+Denies the toggle_devtools command without any pre-configured scope.
 
 </td>
 </tr>

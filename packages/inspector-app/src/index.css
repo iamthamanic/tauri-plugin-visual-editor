@@ -4,17 +4,17 @@
 
 :root,
 [data-theme='light'] {
-  --inspector-bg: #f8f9fa;
-  --inspector-border: #d0d7de;
+  --inspector-bg: #1a1a1a;
+  --inspector-border: #3d3d3d;
   --inspector-accent: #0969da;
   --inspector-hover: #0969da33;
-  --inspector-text: #1f2328;
-  --inspector-muted: #656d76;
-  --inspector-danger: #cf222e;
+  --inspector-text: #e6edf3;
+  --inspector-muted: #8b949e;
+  --inspector-danger: #f85149;
 }
 
 [data-theme='dark'] {
-  --inspector-bg: #1e1e1e;
+  --inspector-bg: #1a1a1a;
   --inspector-border: #3d3d3d;
   --inspector-accent: #58a6ff;
   --inspector-hover: #58a6ff33;
@@ -25,7 +25,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --inspector-bg: #1e1e1e;
+    --inspector-bg: #1a1a1a;
     --inspector-border: #3d3d3d;
     --inspector-accent: #58a6ff;
     --inspector-hover: #58a6ff33;
@@ -35,9 +35,59 @@
   }
 }
 
-body {
+html,
+body,
+#root {
   margin: 0;
-  font-family: system-ui, -apple-system, sans-serif;
-  background: var(--inspector-bg);
+  min-height: 100%;
+  background: transparent;
   color: var(--inspector-text);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+@keyframes ve-clear-wipe {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.ve-clear-wipe {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: linear-gradient(90deg, transparent 0%, #0d1117 50%, transparent 100%);
+  pointer-events: none;
+  animation: ve-clear-wipe 0.45s ease forwards;
+}
+
+.ve-composer-text[data-empty='true']::before {
+  content: attr(data-placeholder);
+  color: var(--inspector-muted);
+  pointer-events: none;
+}
+
+.ve-composer-flow {
+  display: block;
+  min-height: 160px;
+  height: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  cursor: text;
+  line-height: 1.5;
+  overflow-y: auto;
+}
+
+.ve-composer-flow [data-ve-chip],
+.ve-composer-flow [data-ve-capture-chip] {
+  margin: 4px 6px 10px 0;
+  vertical-align: middle;
+}
+
+.ve-composer-flow[data-empty='true']::before {
+  content: attr(data-placeholder);
+  color: var(--inspector-muted);
+  pointer-events: none;
 }

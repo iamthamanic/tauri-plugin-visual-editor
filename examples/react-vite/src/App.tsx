@@ -5,7 +5,6 @@
 
 import { InspectorMeta } from '@tauri-plugin/visual-editor-sdk/react';
 import { DemoCard } from './components/DemoCard';
-import { InspectorToolbar } from './components/InspectorToolbar';
 import { openModalWebview } from './lib/openModalWebview';
 
 export function App() {
@@ -13,10 +12,9 @@ export function App() {
     <main className="layout">
       <h1>Visual Editor — React + Vite Demo</h1>
       <p className="muted">
-        Aktiviere den Inspector, wähle Elemente per Hover/Klick und öffne optional ein zweites WebView-Fenster.
+        Das Plugin-Overlay erscheint nur in der <strong>Tauri Desktop-App</strong> (nicht im Browser).
+        Starte mit <code>npm run tauri:dev</code> — rechts schwebt die Icon-Leiste.
       </p>
-
-      <InspectorToolbar />
 
       <div style={{ display: 'grid', gap: 16, marginBottom: 20 }}>
         <InspectorMeta component="DemoCard" file="src/components/DemoCard.tsx" id="demo-card-main">

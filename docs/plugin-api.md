@@ -141,7 +141,7 @@ listen('visual-editor://state-updated', (event) => {
 | `report_selection` | `{ snapshot: ElementSnapshot, action: string }` | `void` | Guest → hub selection report (internal) |
 | `revalidate` | — | `number` | Re-resolve selectors in target webview; returns count updated |
 | `export_context` | — | `string` | Generate context bundle markdown |
-| `copy_context_bundle` | — | `void` | Copy bundle text to system clipboard |
+| `copy_context_bundle` | `{ full?: boolean }` | `void` | Default: composer text + screenshot (HTML). `full: true`: technical bundle |
 | `set_issue_text` | `{ text: string }` | `void` | Attach user issue description to session |
 
 ### Screenshots
@@ -183,7 +183,7 @@ Capture is async with a 5s timeout. On failure, selections are preserved; bundle
 | Command | Args | Returns | Description |
 |---------|------|---------|-------------|
 | `update_settings` | `{ patch: PersistentSettingsPatch }` | `void` | Merge settings patch and persist to disk |
-| `hard_reload` | `{ webviewId?: string }` | `void` | Hard reload target webview (default: active target) |
+| `hard_reload` | `{ webviewId?: string, clearCache?: boolean }` | `void` | Reload target webview; default `clearCache: true` clears HTTP cache and storage before reload. Hub session is preserved; selections marked stale. Embedded toolbar/picker are restored after reload. |
 
 #### `PersistentSettingsPatch`
 

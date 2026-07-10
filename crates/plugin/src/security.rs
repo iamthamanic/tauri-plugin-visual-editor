@@ -119,6 +119,9 @@ mod tests {
             enabled: true,
             allow: true,
             allow_in_production: false,
+            auto_open: true,
+            overlay_defer_ms: 100,
+            overlay_mode: crate::config::OverlayMode::default(),
             project_root: None,
         }
     }
@@ -186,6 +189,9 @@ mod tests {
                             enabled,
                             allow,
                             allow_in_production: prod,
+                            auto_open: true,
+                            overlay_defer_ms: 100,
+                            overlay_mode: crate::config::OverlayMode::default(),
                             project_root: None,
                         };
                         let ok = gates(config, debug).check().is_ok();

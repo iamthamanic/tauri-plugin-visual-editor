@@ -67,6 +67,7 @@ pub fn disable<R: Runtime>(
 pub fn open<R: Runtime>(
     app: AppHandle<R>,
     gates: State<'_, RuntimeGates>,
+    config: State<'_, VisualEditorConfig>,
     hub: State<'_, InspectorHub>,
     options: Option<OpenOptions>,
 ) -> Result<(), String> {
@@ -76,7 +77,11 @@ pub fn open<R: Runtime>(
     if auto_enable {
         crate::webview::set_guest_active_for_app(&app, &hub, true)?;
     }
-    crate::inspector_window::open_inspector_window(&app)?;
+    if config.uses_window_overlay() {
+        crate::inspector_window::open_inspector_window(&app)?;
+    } else {
+        crate::webview::show_embedded_toolbar_for_app(&app, &hub)?;
+    }
     emit_after(&app, &hub);
     Ok(())
 }
@@ -85,10 +90,15 @@ pub fn open<R: Runtime>(
 pub fn close<R: Runtime>(
     app: AppHandle<R>,
     gates: State<'_, RuntimeGates>,
+    config: State<'_, VisualEditorConfig>,
     hub: State<'_, InspectorHub>,
 ) -> Result<(), String> {
     require_gates(&gates)?;
-    crate::inspector_window::close_inspector_window(&app)?;
+    if config.uses_window_overlay() {
+        crate::inspector_window::close_inspector_window(&app)?;
+    } else {
+        crate::webview::hide_embedded_toolbar_for_app(&app, &hub)?;
+    }
     hub.close();
     emit_after(&app, &hub);
     Ok(())
@@ -98,15 +108,27 @@ pub fn close<R: Runtime>(
 pub fn toggle<R: Runtime>(
     app: AppHandle<R>,
     gates: State<'_, RuntimeGates>,
+    config: State<'_, VisualEditorConfig>,
     hub: State<'_, InspectorHub>,
 ) -> Result<bool, String> {
     require_gates(&gates)?;
-    let visible = crate::inspector_window::toggle_inspector_window(&app)?;
-    if visible {
-        hub.open(false);
+    let visible = if config.uses_window_overlay() {
+        let visible = crate::inspector_window::toggle_inspector_window(&app)?;
+        if visible {
+            hub.open(false);
+        } else {
+            hub.close();
+        }
+        visible
     } else {
-        hub.close();
-    }
+        let visible = hub.toggle_window();
+        if visible {
+            crate::webview::show_embedded_toolbar_for_app(&app, &hub)?;
+        } else {
+            crate::webview::hide_embedded_toolbar_for_app(&app, &hub)?;
+        }
+        visible
+    };
     emit_after(&app, &hub);
     Ok(visible)
 }
@@ -203,6 +225,19 @@ pub fn revalidate<R: Runtime>(
 }
 
 #[command]
+pub fn notify_navigation<R: Runtime>(
+    app: AppHandle<R>,
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    webview_id: String,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    hub.mark_selections_stale_for_webview(&webview_id);
+    emit_after(&app, &hub);
+    Ok(())
+}
+
+#[command]
 pub fn report_selection<R: Runtime>(
     app: AppHandle<R>,
     gates: State<'_, RuntimeGates>,
@@ -220,14 +255,30 @@ pub fn report_selection<R: Runtime>(
 pub fn copy_context_bundle(
     gates: State<'_, RuntimeGates>,
     hub: State<'_, InspectorHub>,
+    full: Option<bool>,
+    blocks: Option<Vec<tauri_plugin_visual_editor_core::types::ComposerBlock>>,
 ) -> Result<(), String> {
     require_gates(&gates)?;
     let captured_at = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs().to_string())
         .unwrap_or_else(|_| "0".into());
-    let bundle = hub.export_context(&captured_at);
-    crate::clipboard::write_text(&bundle)
+
+    if full.unwrap_or(false) {
+        let bundle = hub.export_context(&captured_at);
+        return crate::clipboard::write_text(&bundle);
+    }
+
+    let composer = match blocks {
+        Some(ref ordered) if !ordered.is_empty() => hub.export_composer_ordered(ordered),
+        _ => hub.export_composer(),
+    };
+    if composer.trim().is_empty() {
+        return Err("Nichts zu kopieren — Elemente, Screenshot oder Text hinzufügen".into());
+    }
+
+    let image_path = hub.primary_capture_path().map(std::path::PathBuf::from);
+    crate::clipboard::write_composer(&composer, image_path.as_deref().filter(|p| p.exists()))
 }
 
 #[command]
@@ -282,7 +333,9 @@ pub fn hard_reload<R: Runtime>(
     app: AppHandle<R>,
     gates: State<'_, RuntimeGates>,
     hub: State<'_, InspectorHub>,
+    config: State<'_, VisualEditorConfig>,
     webview_id: Option<String>,
+    clear_cache: Option<bool>,
 ) -> Result<(), String> {
     require_gates(&gates)?;
     let target = webview_id.unwrap_or_else(|| {
@@ -291,7 +344,24 @@ pub fn hard_reload<R: Runtime>(
             .map(|t| t.webview_id)
             .unwrap_or_else(|| "main".into())
     });
-    crate::reload::hard_reload(&app, &hub, &target)
+    crate::reload::hard_reload(&app, &hub, &config, &target, clear_cache.unwrap_or(true))
+}
+
+#[command]
+pub fn toggle_devtools<R: Runtime>(
+    app: AppHandle<R>,
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    webview_id: Option<String>,
+) -> Result<bool, String> {
+    require_gates(&gates)?;
+    let target = webview_id.unwrap_or_else(|| {
+        hub.snapshot()
+            .active_target
+            .map(|t| t.webview_id)
+            .unwrap_or_else(|| "main".into())
+    });
+    crate::reload::toggle_devtools(&app, &target)
 }
 
 #[command]
@@ -303,6 +373,32 @@ pub fn set_issue_text<R: Runtime>(
 ) -> Result<(), String> {
     require_gates(&gates)?;
     hub.set_issue_text(Some(text));
+    emit_after(&app, &hub);
+    Ok(())
+}
+
+#[command]
+pub fn remove_element<R: Runtime>(
+    app: AppHandle<R>,
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    element_id: String,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    hub.remove_element(&element_id)?;
+    emit_after(&app, &hub);
+    Ok(())
+}
+
+#[command]
+pub fn remove_capture<R: Runtime>(
+    app: AppHandle<R>,
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    capture_id: String,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    hub.remove_capture(&capture_id)?;
     emit_after(&app, &hub);
     Ok(())
 }
@@ -335,6 +431,34 @@ pub fn set_capture_included<R: Runtime>(
 }
 
 #[command]
+pub fn save_capture_image(
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    capture_id: String,
+    png_bytes: Vec<u8>,
+) -> Result<(), String> {
+    require_gates(&gates)?;
+    let path = hub
+        .capture_path(&capture_id)
+        .ok_or_else(|| format!("Unknown capture: {capture_id}"))?;
+    std::fs::write(&path, &png_bytes).map_err(|e| format!("Failed to save capture: {e}"))?;
+    Ok(())
+}
+
+#[command]
+pub fn read_capture_image(
+    gates: State<'_, RuntimeGates>,
+    hub: State<'_, InspectorHub>,
+    capture_id: String,
+) -> Result<Vec<u8>, String> {
+    require_gates(&gates)?;
+    let path = hub
+        .capture_path(&capture_id)
+        .ok_or_else(|| format!("Unknown capture: {capture_id}"))?;
+    std::fs::read(&path).map_err(|e| format!("Failed to read capture: {e}"))
+}
+
+#[command]
 pub fn update_settings<R: Runtime>(
     app: AppHandle<R>,
     gates: State<'_, RuntimeGates>,
@@ -364,6 +488,9 @@ mod tests {
                 enabled: true,
                 allow: true,
                 allow_in_production: false,
+                auto_open: true,
+                overlay_defer_ms: 100,
+                overlay_mode: crate::config::OverlayMode::default(),
                 project_root: None,
             },
             false,
@@ -382,6 +509,9 @@ mod tests {
                     enabled: true,
                     allow: true,
                     allow_in_production: false,
+                    auto_open: true,
+                    overlay_defer_ms: 100,
+                    overlay_mode: crate::config::OverlayMode::default(),
                     project_root: None,
                 },
                 false,

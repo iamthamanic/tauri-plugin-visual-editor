@@ -1,55 +1,57 @@
 /**
- * Main inspector panel layout.
+ * Floating overlay shell — toolbar + optional context panel.
  * Location: packages/inspector-app/src/App.tsx
  */
 
 import { useEffect, useRef, useState } from 'react';
 import * as api from './api.js';
-import { ActionBar } from './components/ActionBar.js';
-import { IssueField } from './components/IssueField.js';
-import { ScreenshotPreview } from './components/ScreenshotPreview.js';
-import { SelectedElements } from './components/SelectedElements.js';
-import { SettingsDialog } from './components/SettingsDialog.js';
-import { TargetSelector } from './components/TargetSelector.js';
+import { ContextPanel } from './components/ContextPanel.js';
+import { FloatingToolbar } from './components/FloatingToolbar.js';
+import { OverlayShell } from './components/OverlayShell.js';
 import { useInspectorState } from './hooks/useInspectorState.js';
-import type { ActionState, PersistentSettingsPatch } from './types.js';
+import { setOverlayExpanded } from './lib/overlaySize.js';
+
+const MESSAGE_TTL_MS = 2500;
 
 async function runAction(
   fn: () => Promise<unknown>,
   setBusy: (value: boolean) => void,
   setMessage: (value: string | null) => void,
   success: string,
+  messageTimer: { current: ReturnType<typeof setTimeout> | null },
 ): Promise<void> {
+  if (messageTimer.current) clearTimeout(messageTimer.current);
   setBusy(true);
   setMessage(null);
   try {
     await fn();
     setMessage(success);
+    messageTimer.current = setTimeout(() => {
+      setMessage(null);
+      messageTimer.current = null;
+    }, MESSAGE_TTL_MS);
   } catch (error) {
     setMessage(error instanceof Error ? error.message : 'Aktion fehlgeschlagen');
+    messageTimer.current = setTimeout(() => {
+      setMessage(null);
+      messageTimer.current = null;
+    }, 4000);
   } finally {
     setBusy(false);
   }
-}
-
-function applyTheme(theme: 'system' | 'light' | 'dark') {
-  const root = document.documentElement;
-  if (theme === 'system') {
-    root.removeAttribute('data-theme');
-    return;
-  }
-  root.setAttribute('data-theme', theme);
 }
 
 export function App() {
   const { state, error } = useInspectorState();
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [settingsError, setSettingsError] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [devtoolsActive, setDevtoolsActive] = useState(false);
   const [issueText, setIssueText] = useState('');
+  const prevSelectionCount = useRef(0);
+  const prevCaptureCount = useRef(0);
   const issueTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [actionState, setActionState] = useState<ActionState>('idle');
+  const messageTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (state?.session.issue_text != null) {
@@ -58,10 +60,24 @@ export function App() {
   }, [state?.session.issue_text]);
 
   useEffect(() => {
-    if (state?.settings.theme) {
-      applyTheme(state.settings.theme);
+    const count = state?.session.selected_elements.length ?? 0;
+    if (count > 0 && count !== prevSelectionCount.current) {
+      setPanelOpen(true);
     }
-  }, [state?.settings.theme]);
+    prevSelectionCount.current = count;
+  }, [state?.session.selected_elements.length]);
+
+  useEffect(() => {
+    const count = state?.session.captures.length ?? 0;
+    if (count > 0 && count !== prevCaptureCount.current) {
+      setPanelOpen(true);
+    }
+    prevCaptureCount.current = count;
+  }, [state?.session.captures.length]);
+
+  useEffect(() => {
+    void setOverlayExpanded(panelOpen).catch(() => undefined);
+  }, [panelOpen]);
 
   useEffect(() => {
     if (issueTimer.current) {
@@ -77,185 +93,101 @@ export function App() {
     };
   }, [issueText]);
 
-  async function saveSettings(patch: PersistentSettingsPatch) {
-    setSettingsError(null);
-    setBusy(true);
-    try {
-      await api.updateSettings(patch);
-      setSettingsOpen(false);
-      setMessage('Einstellungen gespeichert');
-    } catch (err) {
-      setSettingsError(err instanceof Error ? err.message : 'Speichern fehlgeschlagen');
-    } finally {
-      setBusy(false);
-    }
-  }
-
   if (error) {
     return (
-      <main className="min-h-screen bg-[var(--inspector-bg)] p-3 text-sm text-[var(--inspector-danger)]">
-        {error}
-      </main>
+      <main className="min-h-screen bg-transparent p-2 text-xs text-[var(--inspector-danger)]">{error}</main>
     );
   }
 
   if (!state) {
     return (
-      <main className="min-h-screen bg-[var(--inspector-bg)] p-3 text-sm text-[var(--inspector-muted)]">
-        Lädt…
-      </main>
+      <main className="min-h-screen bg-transparent p-2 text-xs text-[var(--inspector-muted)]">Lädt…</main>
     );
   }
 
-  const settingsButton = (
-    <button
-      type="button"
-      className="rounded border border-[var(--inspector-border)] px-2 py-1 text-[12px]"
-      onClick={() => setSettingsOpen(true)}
-    >
-      Einstellungen
-    </button>
-  );
-
-  if (!state.enabled) {
-    return (
-      <main className="min-h-screen bg-[var(--inspector-bg)] p-3 text-sm text-[var(--inspector-text)]">
-        <header className="mb-2 flex items-center justify-between gap-2">
-          <h1 className="text-sm font-semibold">Visual Inspector</h1>
-          {settingsButton}
-        </header>
-        <p className="mt-2 text-[var(--inspector-muted)]">Inspector deaktiviert</p>
-        <button
-          type="button"
-          className="mt-3 rounded bg-[var(--inspector-accent)] px-3 py-1.5 text-white"
-          onClick={() => void runAction(api.enable, setBusy, setMessage, 'Inspector aktiviert')}
-        >
-          Aktivieren
-        </button>
-        <SettingsDialog
-          open={settingsOpen}
-          settings={state.settings}
-          busy={busy}
-          error={settingsError}
-          onClose={() => setSettingsOpen(false)}
-          onSave={(patch) => void saveSettings(patch)}
-        />
-      </main>
-    );
-  }
+  const handleToggleDevtools = async (): Promise<boolean> => {
+    if (messageTimer.current) clearTimeout(messageTimer.current);
+    setBusy(true);
+    setMessage(null);
+    try {
+      const open = await api.toggleDevtools();
+      setDevtoolsActive(open);
+      setMessage(open ? 'DevTools geöffnet' : 'DevTools geschlossen');
+      messageTimer.current = setTimeout(() => {
+        setMessage(null);
+        messageTimer.current = null;
+      }, MESSAGE_TTL_MS);
+      return open;
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'DevTools fehlgeschlagen');
+      messageTimer.current = setTimeout(() => {
+        setMessage(null);
+        messageTimer.current = null;
+      }, 4000);
+      throw error;
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
-    <main className="min-h-screen bg-[var(--inspector-bg)] p-3 text-[13px] text-[var(--inspector-text)]">
-      <header className="mb-4 flex items-start justify-between gap-2">
-        <div>
-          <h1 className="text-sm font-semibold">Visual Inspector</h1>
-          <p className="text-[12px] text-[var(--inspector-muted)]">
-            {state.inspector_window_open ? 'Fenster geöffnet' : 'Fenster geschlossen'}
-          </p>
-        </div>
-        {settingsButton}
-      </header>
-
-      <div className="space-y-4">
-        <TargetSelector
-          state={state}
-          onTargetChange={(webviewId) =>
-            void runAction(
-              () => api.setTargetWebview(webviewId),
-              setBusy,
-              setMessage,
-              'Ziel-WebView gesetzt',
-            )
-          }
-          onPinToggle={(webviewId, pinned) =>
-            void runAction(
-              () => (pinned ? api.pinTargetWebview(webviewId) : api.unpinTargetWebview()),
-              setBusy,
-              setMessage,
-              pinned ? 'Ziel angeheftet' : 'Anheftung gelöst',
-            )
-          }
-        />
-
-        <section>
-          <h2 className="mb-2 text-xs font-semibold uppercase text-[var(--inspector-muted)]">Elemente</h2>
-          <SelectedElements elements={state.session.selected_elements} />
-        </section>
-
-        <section>
-          <h2 className="mb-2 text-xs font-semibold uppercase text-[var(--inspector-muted)]">Screenshots</h2>
-          <ScreenshotPreview
-            captures={state.session.captures}
-            primaryCaptureId={state.session.primary_capture_id}
-            onPrimary={(captureId) =>
-              void runAction(
-                () => api.setPrimaryCapture(captureId),
-                setBusy,
-                setMessage,
-                'Primärer Screenshot gesetzt',
-              )
-            }
-            onIncludeToggle={(captureId, include) =>
-              void runAction(
-                () => api.setCaptureIncluded(captureId, include),
-                setBusy,
-                setMessage,
-                include ? 'In Export aufgenommen' : 'Aus Export entfernt',
-              )
-            }
-          />
-        </section>
-
-        <IssueField value={issueText} onChange={setIssueText} />
-
-        <ActionBar
-          enabled={state.enabled}
+    <main className="min-h-screen bg-transparent">
+      <OverlayShell panelOpen={panelOpen}>
+        {panelOpen ? (
+        <ContextPanel
+          elements={state.session.selected_elements}
+          captures={state.session.captures}
+          issueText={issueText}
           busy={busy}
-          message={message ?? (actionState === 'loading' ? 'Läuft…' : null)}
-          onEnable={() =>
-            void runAction(api.enable, setBusy, setMessage, 'Inspector aktiviert').then(() =>
-              setActionState('success'),
-            )
-          }
-          onDisable={() =>
-            void runAction(api.disable, setBusy, setMessage, 'Inspector deaktiviert').then(() =>
-              setActionState('success'),
-            )
-          }
-          onCopyBundle={() =>
-            void runAction(api.copyContextBundle, setBusy, setMessage, 'Context Bundle kopiert')
-          }
-          onCopyImage={() =>
-            void runAction(api.copyScreenshotImage, setBusy, setMessage, 'Screenshot-Bild kopiert')
-          }
-          onCopyPath={() =>
-            void runAction(api.copyScreenshotPath, setBusy, setMessage, 'Screenshot-Pfad kopiert')
-          }
-          onClear={() =>
-            void runAction(api.clearSession, setBusy, setMessage, 'Session geleert')
-          }
-          onRevalidate={() =>
-            void runAction(
-              () => api.revalidate(),
+          message={message}
+          onIssueChange={(value) => {
+            setIssueText(value);
+            if (value.trim() && state.enabled) {
+              void api.disable().catch(() => undefined);
+            }
+          }}
+          onCopy={(full, blocks) =>
+            runAction(
+              () => api.copyContextBundle(full, blocks),
               setBusy,
               setMessage,
-              'Revalidierung abgeschlossen',
+              full ? 'Context Bundle kopiert' : 'Composer kopiert',
+              messageTimer,
             )
           }
-          onHardReload={() =>
-            void runAction(() => api.hardReload(), setBusy, setMessage, 'Hard Reload ausgeführt')
-          }
+          onClear={async () => {
+            setIssueText('');
+            await runAction(api.clearSession, setBusy, setMessage, 'Session geleert', messageTimer);
+          }}
         />
-      </div>
+        ) : null}
 
-      <SettingsDialog
-        open={settingsOpen}
-        settings={state.settings}
-        busy={busy}
-        error={settingsError}
-        onClose={() => setSettingsOpen(false)}
-        onSave={(patch) => void saveSettings(patch)}
-      />
+        <FloatingToolbar
+          pickerActive={state.enabled}
+          panelOpen={panelOpen}
+          devtoolsActive={devtoolsActive}
+          busy={busy}
+          onHardReload={() =>
+            void runAction(() => api.hardReload(), setBusy, setMessage, 'Hard Reload ausgeführt', messageTimer)
+          }
+          onScreenshot={() =>
+            void runAction(() => api.capture({ mode: 'webview' }), setBusy, setMessage, 'Screenshot erstellt', messageTimer)
+          }
+          onTogglePicker={() => {
+            if (state.enabled) {
+              void runAction(api.disable, setBusy, setMessage, 'Picker aus', messageTimer);
+            } else {
+              void runAction(api.enable, setBusy, setMessage, 'Picker an', messageTimer);
+            }
+          }}
+          onTogglePanel={() => {
+            if (messageTimer.current) clearTimeout(messageTimer.current);
+            setMessage(null);
+            setPanelOpen((open) => !open);
+          }}
+          onToggleDevtools={() => void handleToggleDevtools()}
+        />
+      </OverlayShell>
     </main>
   );
 }
