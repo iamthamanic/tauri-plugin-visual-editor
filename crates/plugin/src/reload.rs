@@ -95,7 +95,7 @@ fn page_interactive<R: Runtime>(webview: &tauri::Webview<R>) -> bool {
 
 fn toolbar_mounted<R: Runtime>(webview: &tauri::Webview<R>) -> bool {
     webview
-        .eval(&format!(
+        .eval(format!(
             r#"if(!document.getElementById('{TOOLBAR_ROOT_ID}'))throw new Error('missing-toolbar')"#,
         ))
         .is_ok()

@@ -89,6 +89,18 @@ export const ICON_SCISSORS = `<svg width="16" height="16" viewBox="0 0 24 24" fi
   <path d="M8.5 15.5L20 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 </svg>`;
 
+/** Undo — curved arrow left. */
+export const ICON_UNDO = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="M9 14 4 9l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+/** Redo — curved arrow right. */
+export const ICON_REDO = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="m15 14 5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
 /** Save / disk icon. */
 export const ICON_SAVE = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>

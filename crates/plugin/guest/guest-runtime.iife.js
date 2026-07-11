@@ -846,6 +846,14 @@
   <path d="M8.5 8.5L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
   <path d="M8.5 15.5L20 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
 </svg>`;
+  var ICON_UNDO = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="M9 14 4 9l5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+  var ICON_REDO = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path d="m15 14 5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
   var ICON_SAVE = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
   <path d="M17 21v-8H7v8" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
@@ -1769,6 +1777,45 @@
     });
   }
 
+  // src/screenshot-editor-history.ts
+  var MAX_HISTORY = 50;
+  function cloneSnapshot(snapshot) {
+    return {
+      strokes: snapshot.strokes.map((s) => ({
+        points: s.points.map((p) => ({ x: p.x, y: p.y }))
+      })),
+      texts: snapshot.texts.map((t) => ({ x: t.x, y: t.y, text: t.text })),
+      cropRect: snapshot.cropRect ? { ...snapshot.cropRect } : null
+    };
+  }
+  function createEditorHistory() {
+    const undoStack = [];
+    const redoStack = [];
+    return {
+      push(snapshot) {
+        undoStack.push(cloneSnapshot(snapshot));
+        if (undoStack.length > MAX_HISTORY) undoStack.shift();
+        redoStack.length = 0;
+      },
+      undo(current) {
+        if (undoStack.length === 0) return null;
+        redoStack.push(cloneSnapshot(current));
+        return undoStack.pop() ?? null;
+      },
+      redo(current) {
+        if (redoStack.length === 0) return null;
+        undoStack.push(cloneSnapshot(current));
+        return redoStack.pop() ?? null;
+      },
+      canUndo() {
+        return undoStack.length > 0;
+      },
+      canRedo() {
+        return redoStack.length > 0;
+      }
+    };
+  }
+
   // src/screenshot-text-box-canvas.ts
   function roundRect(ctx, x, y, w, h, r) {
     const radius = Math.min(r, w / 2, h / 2);
@@ -1845,6 +1892,7 @@
     let cropRect = null;
     let cropDragging = false;
     let cropStart = null;
+    const history = createEditorHistory();
     const overlay = document.createElement("div");
     overlay.setAttribute("data-visual-editor-screenshot-editor", "true");
     Object.assign(overlay.style, {
@@ -1925,7 +1973,19 @@
       refreshTools();
     });
     const saveBtn = mkIconBtn(ICON_SAVE, "Speichern", false, () => void save(), true);
+    const undoBtn = mkIconBtn(ICON_UNDO, "Zur\xFCck", false, () => undo());
+    const redoBtn = mkIconBtn(ICON_REDO, "Vor", false, () => redo());
     const cancelBtn = mkLabelBtn("Abbrechen", false, close);
+    const refreshUndoButtons = () => {
+      const canUndo = history.canUndo();
+      const canRedo = history.canRedo();
+      undoBtn.disabled = !canUndo;
+      redoBtn.disabled = !canRedo;
+      undoBtn.style.opacity = canUndo ? "1" : "0.4";
+      redoBtn.style.opacity = canRedo ? "1" : "0.4";
+      undoBtn.style.cursor = canUndo ? "pointer" : "not-allowed";
+      redoBtn.style.cursor = canRedo ? "pointer" : "not-allowed";
+    };
     const refreshTools = () => {
       for (const [btn, active] of [
         [drawBtn, mode === "draw"],
@@ -1943,7 +2003,8 @@
         item.el.style.pointerEvents = mode === "text" ? "auto" : "none";
       }
     };
-    toolbar2.append(statusEl, drawBtn, textBtn, cropBtn, saveBtn, cancelBtn);
+    toolbar2.append(statusEl, drawBtn, textBtn, cropBtn, undoBtn, redoBtn, saveBtn, cancelBtn);
+    refreshUndoButtons();
     const canvasWrap = document.createElement("div");
     Object.assign(canvasWrap.style, {
       maxWidth: "90vw",
@@ -2006,7 +2067,8 @@
         syncTextOverlayPosition(item);
       }
     };
-    const createTextOverlay = (x, y, focusInput = false) => {
+    const createTextOverlay = (x, y, focusInput = false, skipHistory = false) => {
+      if (!skipHistory) beginMutation();
       const box = document.createElement("div");
       box.setAttribute("data-visual-editor-ui", "true");
       Object.assign(box.style, {
@@ -2077,6 +2139,7 @@
       handle.addEventListener("pointerdown", (event) => {
         event.preventDefault();
         event.stopPropagation();
+        beginMutation();
         const rect = box.getBoundingClientRect();
         dragging = true;
         dragOffsetX = event.clientX - rect.left;
@@ -2092,6 +2155,52 @@
       if (focusInput) {
         requestAnimationFrame(() => content.focus());
       }
+    };
+    const captureSnapshot = () => ({
+      strokes: strokes.map((s) => ({ points: s.points.map((p) => ({ x: p.x, y: p.y })) })),
+      texts: textOverlays.map((item) => {
+        const input = item.el.querySelector("textarea");
+        return {
+          x: item.x,
+          y: item.y,
+          text: input instanceof HTMLTextAreaElement ? input.value : ""
+        };
+      }),
+      cropRect: cropRect ? { ...cropRect } : null
+    });
+    const restoreSnapshot = (snapshot) => {
+      strokes.length = 0;
+      for (const stroke of snapshot.strokes) {
+        strokes.push({ points: stroke.points.map((p) => ({ x: p.x, y: p.y })) });
+      }
+      cropRect = snapshot.cropRect ? { ...snapshot.cropRect } : null;
+      for (const item of textOverlays) {
+        item.el.remove();
+      }
+      textOverlays.length = 0;
+      for (const t of snapshot.texts) {
+        createTextOverlay(t.x, t.y, false, true);
+        const last = textOverlays[textOverlays.length - 1];
+        const input = last.el.querySelector("textarea");
+        if (input instanceof HTMLTextAreaElement) {
+          input.value = t.text;
+        }
+      }
+      refreshTools();
+      redraw();
+      refreshUndoButtons();
+    };
+    const beginMutation = () => {
+      history.push(captureSnapshot());
+      refreshUndoButtons();
+    };
+    const undo = () => {
+      const prev = history.undo(captureSnapshot());
+      if (prev) restoreSnapshot(prev);
+    };
+    const redo = () => {
+      const next = history.redo(captureSnapshot());
+      if (next) restoreSnapshot(next);
     };
     const normalizeCropRect = (x1, y1, x2, y2) => {
       const x = Math.min(x1, x2);
@@ -2171,6 +2280,7 @@
         return;
       }
       if (mode === "crop") {
+        beginMutation();
         cropDragging = true;
         cropStart = pt;
         cropRect = { x: pt.x, y: pt.y, width: 0, height: 0 };
@@ -2179,6 +2289,7 @@
         return;
       }
       drawing = true;
+      beginMutation();
       currentStroke = { points: [pt] };
       strokes.push(currentStroke);
       canvas.setPointerCapture(event.pointerId);
@@ -2208,6 +2319,24 @@
     canvasWrap.append(canvasHost);
     overlay.append(toolbar2, canvasWrap);
     mountFloatingModal(overlay);
+    const onEditorKeyDown = (event) => {
+      if (!(event.metaKey || event.ctrlKey)) return;
+      const target = event.target;
+      if (target instanceof HTMLTextAreaElement) return;
+      const key = event.key.toLowerCase();
+      if (key === "z" && !event.shiftKey) {
+        event.preventDefault();
+        undo();
+        return;
+      }
+      if (key === "z" && event.shiftKey || key === "y") {
+        event.preventDefault();
+        redo();
+      }
+    };
+    overlay.addEventListener("keydown", onEditorKeyDown);
+    overlay.tabIndex = -1;
+    requestAnimationFrame(() => overlay.focus());
     void loadCaptureBlobUrl(options.captureId).then((url) => {
       blobUrl = url;
       bg.onload = () => {
@@ -2230,6 +2359,7 @@
     function close() {
       resizeObserver.disconnect();
       window.removeEventListener("resize", fitCanvasToView);
+      overlay.removeEventListener("keydown", onEditorKeyDown);
       if (blobUrl) URL.revokeObjectURL(blobUrl);
       overlay.remove();
       editorOpen = false;

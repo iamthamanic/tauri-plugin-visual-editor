@@ -3,9 +3,10 @@
  * Location: packages/inspector-app/src/components/ScreenshotEditor.tsx
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as api from '../api.js';
-import { IconDraw, IconSave, IconScissors, IconText } from '../lib/icons.js';
+import { IconDraw, IconRedo, IconSave, IconScissors, IconText, IconUndo } from '../lib/icons.js';
+import { createEditorHistory, type EditorSnapshot } from '../lib/screenshotEditorHistory.js';
 import { drawTextBoxOnCanvas } from '../lib/screenshotTextBoxCanvas.js';
 
 type Stroke = { points: Array<{ x: number; y: number }> };
@@ -39,6 +40,53 @@ export function ScreenshotEditor({ captureId, onClose, onSaved }: Props) {
   const cropRectRef = useRef<CropRect | null>(null);
   const cropDraggingRef = useRef(false);
   const cropStartRef = useRef<{ x: number; y: number } | null>(null);
+  const historyRef = useRef(createEditorHistory());
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  const syncHistoryButtons = useCallback(() => {
+    setCanUndo(historyRef.current.canUndo());
+    setCanRedo(historyRef.current.canRedo());
+  }, []);
+
+  const captureSnapshot = useCallback((): EditorSnapshot => {
+    return {
+      strokes: strokesRef.current.map((s) => ({
+        points: s.points.map((p) => ({ x: p.x, y: p.y })),
+      })),
+      texts: textItems.map((t) => ({ id: t.id, x: t.x, y: t.y, text: t.text })),
+      cropRect: cropRectRef.current ? { ...cropRectRef.current } : null,
+    };
+  }, [textItems]);
+
+  const restoreSnapshot = useCallback(
+    (snapshot: EditorSnapshot) => {
+      strokesRef.current = snapshot.strokes.map((s) => ({
+        points: s.points.map((p) => ({ x: p.x, y: p.y })),
+      }));
+      cropRectRef.current = snapshot.cropRect ? { ...snapshot.cropRect } : null;
+      setTextItems(snapshot.texts.map((t) => ({ ...t })));
+      redraw();
+      syncHistoryButtons();
+    },
+    [syncHistoryButtons],
+  );
+
+  const beginMutation = useCallback(() => {
+    historyRef.current.push(captureSnapshot());
+    syncHistoryButtons();
+  }, [captureSnapshot, syncHistoryButtons]);
+
+  const undo = useCallback(() => {
+    const prev = historyRef.current.undo(captureSnapshot());
+    if (prev) restoreSnapshot(prev);
+  }, [captureSnapshot, restoreSnapshot]);
+
+  const redo = useCallback(() => {
+    const next = historyRef.current.redo(captureSnapshot());
+    if (next) restoreSnapshot(next);
+  }, [captureSnapshot, restoreSnapshot]);
 
   const normalizeCropRect = (x1: number, y1: number, x2: number, y2: number): CropRect => {
     const x = Math.min(x1, x2);
@@ -110,6 +158,28 @@ export function ScreenshotEditor({ captureId, onClose, onSaved }: Props) {
   }, [ready]);
 
   useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey)) return;
+      if (event.target instanceof HTMLTextAreaElement) return;
+      const key = event.key.toLowerCase();
+      if (key === 'z' && !event.shiftKey) {
+        event.preventDefault();
+        undo();
+        return;
+      }
+      if ((key === 'z' && event.shiftKey) || key === 'y') {
+        event.preventDefault();
+        redo();
+      }
+    };
+    root.addEventListener('keydown', onKeyDown);
+    root.focus();
+    return () => root.removeEventListener('keydown', onKeyDown);
+  }, [undo, redo, ready]);
+
+  useEffect(() => {
     let cancelled = false;
     void api.loadCaptureBlobUrl(captureId).then((url) => {
       if (cancelled) {
@@ -159,7 +229,8 @@ export function ScreenshotEditor({ captureId, onClose, onSaved }: Props) {
     };
   };
 
-  const addTextBox = (x: number, y: number, focus = false) => {
+  const addTextBox = (x: number, y: number, focus = false, skipHistory = false) => {
+    if (!skipHistory) beginMutation();
     const id = `t-${++textId}`;
     setTextItems((items) => [...items, { id, x, y, text: '' }]);
     if (focus) {
@@ -182,6 +253,7 @@ export function ScreenshotEditor({ captureId, onClose, onSaved }: Props) {
       return;
     }
     if (mode === 'crop') {
+      beginMutation();
       cropDraggingRef.current = true;
       cropStartRef.current = pt;
       cropRectRef.current = { x: pt.x, y: pt.y, width: 0, height: 0 };
@@ -190,6 +262,7 @@ export function ScreenshotEditor({ captureId, onClose, onSaved }: Props) {
       return;
     }
     drawingRef.current = true;
+    beginMutation();
     currentStrokeRef.current = { points: [pt] };
     strokesRef.current.push(currentStrokeRef.current);
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -241,6 +314,7 @@ export function ScreenshotEditor({ captureId, onClose, onSaved }: Props) {
     const scaleY = canvas.height / rect.height;
     const offsetX = event.clientX - rect.left - item.x / scaleX;
     const offsetY = event.clientY - rect.top - item.y / scaleY;
+    beginMutation();
 
     const onMove = (ev: PointerEvent) => {
       const x = Math.max(0, Math.min(canvas.width, (ev.clientX - rect.left - offsetX) * scaleX));
@@ -315,11 +389,12 @@ export function ScreenshotEditor({ captureId, onClose, onSaved }: Props) {
     onClick: () => void,
     icon: React.ReactNode,
     accent?: boolean,
+    forceDisabled?: boolean,
   ) => (
     <button
       type="button"
       title={title}
-      disabled={busy}
+      disabled={busy || forceDisabled}
       onClick={onClick}
       className={[
         'flex h-8 w-8 items-center justify-center rounded-md border transition-colors disabled:opacity-50',
@@ -351,7 +426,11 @@ export function ScreenshotEditor({ captureId, onClose, onSaved }: Props) {
   );
 
   return (
-    <div className="fixed inset-0 z-[100000] flex flex-col items-center justify-center gap-3 bg-black/75">
+    <div
+      ref={rootRef}
+      tabIndex={-1}
+      className="fixed inset-0 z-[100000] flex flex-col items-center justify-center gap-3 bg-black/75 outline-none"
+    >
       <div className="flex items-center gap-2 rounded-[10px] border border-[var(--inspector-border)] bg-[#1a1a1a] p-2">
         {status ? <span className="text-[12px] text-[var(--inspector-muted)]">{status}</span> : null}
         {iconBtn(mode === 'draw', 'Zeichnen', () => setMode('draw'), <IconDraw />)}
@@ -360,6 +439,8 @@ export function ScreenshotEditor({ captureId, onClose, onSaved }: Props) {
           spawnDefaultTextBox();
         }, <IconText />)}
         {iconBtn(mode === 'crop', 'Zuschneiden', () => setMode('crop'), <IconScissors />)}
+        {iconBtn(false, 'Zurück', undo, <IconUndo />, false, !canUndo)}
+        {iconBtn(false, 'Vor', redo, <IconRedo />, false, !canRedo)}
         {iconBtn(false, 'Speichern', () => void save(), <IconSave />, true)}
         {labelBtn('Abbrechen', onClose)}
       </div>
