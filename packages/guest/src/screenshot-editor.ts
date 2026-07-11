@@ -5,12 +5,16 @@
 
 import { loadCaptureBlobUrl } from './capture-image.js';
 import { mountFloatingModal } from './floating-ui.js';
+import {
+  createEditorHistory,
+  type CropRect,
+  type EditorSnapshot,
+  type Stroke,
+} from './screenshot-editor-history.js';
 import { drawTextBoxOnCanvas } from './screenshot-text-box-canvas.js';
-import { ICON_DRAW, ICON_SAVE, ICON_SCISSORS, ICON_TEXT } from './toolbar-icons.js';
+import { ICON_DRAW, ICON_REDO, ICON_SAVE, ICON_SCISSORS, ICON_TEXT, ICON_UNDO } from './toolbar-icons.js';
 
-type Stroke = { points: Array<{ x: number; y: number }> };
 type TextOverlay = { x: number; y: number; el: HTMLDivElement };
-type CropRect = { x: number; y: number; width: number; height: number };
 type EditorMode = 'draw' | 'text' | 'crop';
 
 type EditorOptions = {
@@ -33,6 +37,7 @@ export function openScreenshotEditor(options: EditorOptions): void {
   let cropRect: CropRect | null = null;
   let cropDragging = false;
   let cropStart: { x: number; y: number } | null = null;
+  const history = createEditorHistory();
 
   const overlay = document.createElement('div');
   overlay.setAttribute('data-visual-editor-screenshot-editor', 'true');
@@ -125,7 +130,20 @@ export function openScreenshotEditor(options: EditorOptions): void {
     refreshTools();
   });
   const saveBtn = mkIconBtn(ICON_SAVE, 'Speichern', false, () => void save(), true);
+  const undoBtn = mkIconBtn(ICON_UNDO, 'Zurück', false, () => undo());
+  const redoBtn = mkIconBtn(ICON_REDO, 'Vor', false, () => redo());
   const cancelBtn = mkLabelBtn('Abbrechen', false, close);
+
+  const refreshUndoButtons = (): void => {
+    const canUndo = history.canUndo();
+    const canRedo = history.canRedo();
+    undoBtn.disabled = !canUndo;
+    redoBtn.disabled = !canRedo;
+    undoBtn.style.opacity = canUndo ? '1' : '0.4';
+    redoBtn.style.opacity = canRedo ? '1' : '0.4';
+    undoBtn.style.cursor = canUndo ? 'pointer' : 'not-allowed';
+    redoBtn.style.cursor = canRedo ? 'pointer' : 'not-allowed';
+  };
 
   const refreshTools = (): void => {
     for (const [btn, active] of [
@@ -145,7 +163,8 @@ export function openScreenshotEditor(options: EditorOptions): void {
     }
   };
 
-  toolbar.append(statusEl, drawBtn, textBtn, cropBtn, saveBtn, cancelBtn);
+  toolbar.append(statusEl, drawBtn, textBtn, cropBtn, undoBtn, redoBtn, saveBtn, cancelBtn);
+  refreshUndoButtons();
 
   const canvasWrap = document.createElement('div');
   Object.assign(canvasWrap.style, {
@@ -219,7 +238,13 @@ export function openScreenshotEditor(options: EditorOptions): void {
     }
   };
 
-  const createTextOverlay = (x: number, y: number, focusInput = false): void => {
+  const createTextOverlay = (
+    x: number,
+    y: number,
+    focusInput = false,
+    skipHistory = false,
+  ): void => {
+    if (!skipHistory) beginMutation();
     const box = document.createElement('div');
     box.setAttribute('data-visual-editor-ui', 'true');
     Object.assign(box.style, {
@@ -298,6 +323,7 @@ export function openScreenshotEditor(options: EditorOptions): void {
     handle.addEventListener('pointerdown', (event) => {
       event.preventDefault();
       event.stopPropagation();
+      beginMutation();
       const rect = box.getBoundingClientRect();
       dragging = true;
       dragOffsetX = event.clientX - rect.left;
@@ -314,6 +340,57 @@ export function openScreenshotEditor(options: EditorOptions): void {
     if (focusInput) {
       requestAnimationFrame(() => content.focus());
     }
+  };
+
+  const captureSnapshot = (): EditorSnapshot => ({
+    strokes: strokes.map((s) => ({ points: s.points.map((p) => ({ x: p.x, y: p.y })) })),
+    texts: textOverlays.map((item) => {
+      const input = item.el.querySelector('textarea');
+      return {
+        x: item.x,
+        y: item.y,
+        text: input instanceof HTMLTextAreaElement ? input.value : '',
+      };
+    }),
+    cropRect: cropRect ? { ...cropRect } : null,
+  });
+
+  const restoreSnapshot = (snapshot: EditorSnapshot): void => {
+    strokes.length = 0;
+    for (const stroke of snapshot.strokes) {
+      strokes.push({ points: stroke.points.map((p) => ({ x: p.x, y: p.y })) });
+    }
+    cropRect = snapshot.cropRect ? { ...snapshot.cropRect } : null;
+    for (const item of textOverlays) {
+      item.el.remove();
+    }
+    textOverlays.length = 0;
+    for (const t of snapshot.texts) {
+      createTextOverlay(t.x, t.y, false, true);
+      const last = textOverlays[textOverlays.length - 1];
+      const input = last.el.querySelector('textarea');
+      if (input instanceof HTMLTextAreaElement) {
+        input.value = t.text;
+      }
+    }
+    refreshTools();
+    redraw();
+    refreshUndoButtons();
+  };
+
+  const beginMutation = (): void => {
+    history.push(captureSnapshot());
+    refreshUndoButtons();
+  };
+
+  const undo = (): void => {
+    const prev = history.undo(captureSnapshot());
+    if (prev) restoreSnapshot(prev);
+  };
+
+  const redo = (): void => {
+    const next = history.redo(captureSnapshot());
+    if (next) restoreSnapshot(next);
   };
 
   const normalizeCropRect = (x1: number, y1: number, x2: number, y2: number): CropRect => {
@@ -399,6 +476,7 @@ export function openScreenshotEditor(options: EditorOptions): void {
       return;
     }
     if (mode === 'crop') {
+      beginMutation();
       cropDragging = true;
       cropStart = pt;
       cropRect = { x: pt.x, y: pt.y, width: 0, height: 0 };
@@ -407,6 +485,7 @@ export function openScreenshotEditor(options: EditorOptions): void {
       return;
     }
     drawing = true;
+    beginMutation();
     currentStroke = { points: [pt] };
     strokes.push(currentStroke);
     canvas.setPointerCapture(event.pointerId);
@@ -441,6 +520,25 @@ export function openScreenshotEditor(options: EditorOptions): void {
   overlay.append(toolbar, canvasWrap);
   mountFloatingModal(overlay);
 
+  const onEditorKeyDown = (event: KeyboardEvent): void => {
+    if (!(event.metaKey || event.ctrlKey)) return;
+    const target = event.target;
+    if (target instanceof HTMLTextAreaElement) return;
+    const key = event.key.toLowerCase();
+    if (key === 'z' && !event.shiftKey) {
+      event.preventDefault();
+      undo();
+      return;
+    }
+    if ((key === 'z' && event.shiftKey) || key === 'y') {
+      event.preventDefault();
+      redo();
+    }
+  };
+  overlay.addEventListener('keydown', onEditorKeyDown);
+  overlay.tabIndex = -1;
+  requestAnimationFrame(() => overlay.focus());
+
   void loadCaptureBlobUrl(options.captureId)
     .then((url) => {
       blobUrl = url;
@@ -466,6 +564,7 @@ export function openScreenshotEditor(options: EditorOptions): void {
   function close(): void {
     resizeObserver.disconnect();
     window.removeEventListener('resize', fitCanvasToView);
+    overlay.removeEventListener('keydown', onEditorKeyDown);
     if (blobUrl) URL.revokeObjectURL(blobUrl);
     overlay.remove();
     editorOpen = false;
