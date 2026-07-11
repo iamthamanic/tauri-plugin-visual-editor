@@ -135,7 +135,7 @@ mod tests {
 
     #[test]
     fn core_version_matches_workspace() {
-        assert_eq!(VERSION, "0.1.1");
+        assert_eq!(VERSION, "0.1.2");
     }
 
     #[cfg(feature = "visual-inspector")]
